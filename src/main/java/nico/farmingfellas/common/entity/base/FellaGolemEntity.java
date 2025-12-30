@@ -27,7 +27,9 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -36,12 +38,17 @@ import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory {
     private static final TrackedData<Boolean> ARMS_IN_AIR = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 
+    private static final TrackedData<Optional<BlockPos>> ZONE_POS_1 = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
+    private static final TrackedData<Optional<BlockPos>> ZONE_POS_2 = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_BLOCK_POS);
+
     private final SimpleInventory inventory;
+    private Box assignedZone;
 
     public float jumpingMultiplier = 1;
 
@@ -68,6 +75,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.initDataTracker();
 
         this.dataTracker.startTracking(ARMS_IN_AIR, false);
+        this.dataTracker.startTracking(ZONE_POS_1, Optional.empty());
+        this.dataTracker.startTracking(ZONE_POS_2, Optional.empty());
     }
 
     @Override
@@ -127,6 +136,11 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         return super.interactMob(player, hand);
     }
 
+    public boolean isPositionAccessible(BlockPos pos) {
+        if(!this.isZoneSet()) return true;
+        return this.getZoneBox().contains(pos.toCenterPos());
+    }
+
     //region // * Wait / Actions * //
     private int cooldown;
 
@@ -175,6 +189,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     //endregion
 
     //region // * Tracked Data * //
+
+    // Arms
     public void setArmsInAir(boolean value) {
         this.dataTracker.set(ARMS_IN_AIR, value);
     }
@@ -182,16 +198,45 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     public boolean getArmsInAir() {
         return this.dataTracker.get(ARMS_IN_AIR);
     }
+
+    // Zone
+    public boolean isZoneSet() {
+        return this.dataTracker.get(ZONE_POS_1).isPresent();
+    }
+
+    public void setZone(BlockPos pos1, BlockPos pos2) {
+        this.dataTracker.set(ZONE_POS_1, Optional.of(pos1));
+        this.dataTracker.set(ZONE_POS_2, Optional.of(pos2));
+
+        this.assignedZone = new Box(pos1.toCenterPos(), pos2.toCenterPos()).expand(0.5f);
+    }
+
+    public Optional<Pair<BlockPos, BlockPos>> getZone() {
+        if(isZoneSet()) {
+            return Optional.of(new Pair<>(this.dataTracker.get(ZONE_POS_1).get(), this.dataTracker.get(ZONE_POS_2).get()));
+        }
+
+        return Optional.empty();
+    }
+
+    public @Nullable Box getZoneBox() {
+        return this.assignedZone;
+    }
     //endregion
 
     //region // * Saving / Loading * //
-
     @Override
     public void writeCustomDataToNbt(NbtCompound nbt) {
         super.writeCustomDataToNbt(nbt);
 
         nbt.put("inventory", this.inventory.toNbtList());
         nbt.putBoolean("arms_in_air", getArmsInAir());
+
+        if(isZoneSet()) {
+            Pair<BlockPos, BlockPos> pair = this.getZone().get();
+            nbt.putLong("zone_pos_1", pair.getLeft().asLong());
+            nbt.putLong("zone_pos_2", pair.getRight().asLong());
+        }
     }
 
     @Override
@@ -200,8 +245,14 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
 
         this.inventory.readNbtList(nbt.getList("inventory", NbtElement.COMPOUND_TYPE));
         this.setArmsInAir(nbt.getBoolean("arms_in_air"));
-    }
 
+        if(nbt.contains("zone_pos_1")) {
+            this.setZone(
+                    BlockPos.fromLong(nbt.getLong("zone_pos_1")),
+                    BlockPos.fromLong(nbt.getLong("zone_pos_2"))
+            );
+        }
+    }
     //endregion
 
     //region // * Fields * //

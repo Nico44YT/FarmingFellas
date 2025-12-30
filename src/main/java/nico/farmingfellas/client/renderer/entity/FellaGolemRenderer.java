@@ -1,8 +1,11 @@
 package nico.farmingfellas.client.renderer.entity;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
+import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.MobEntityRenderer;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
@@ -14,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import nico.farmingfellas.FarmingFellasMain;
+import nico.farmingfellas.client.renderer.ZoningOverlayRenderer;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 
@@ -41,7 +45,7 @@ public class FellaGolemRenderer<E extends FellaGolemEntity, M extends EntityMode
                 super.renderItem(entity, stack, mode, arm, matrices, consumers, light);
             }
         });
-
+        this.addFeature(new ZoningOverlayRenderer<>(this));
     }
 
     @Override
