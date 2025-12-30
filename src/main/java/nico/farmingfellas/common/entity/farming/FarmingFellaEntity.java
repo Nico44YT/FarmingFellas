@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.goal.EmptyInventoryGoal;
+import nico.farmingfellas.common.entity.farming.goal.PlantCropGoal;
 import nico.farmingfellas.common.entity.farming.goal.harvest.*;
 import nico.farmingfellas.screen.custom.Generic3x2ContainerScreenHandler;
 import org.jetbrains.annotations.Nullable;
@@ -32,6 +33,7 @@ public class FarmingFellaEntity extends FellaGolemEntity {
         this.goalSelector.add(1, new GlowBerryHarvestGoal(this));
 
         this.goalSelector.add(2, new EmptyInventoryGoal(this));
+        this.goalSelector.add(3, new PlantCropGoal(this));
     }
 
 
