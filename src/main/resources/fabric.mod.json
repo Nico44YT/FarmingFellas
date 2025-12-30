@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "farming_fellas",
+  "version": "${version}",
+  "name": "FarmingFellas",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "GPL-3.0",
+  "icon": "assets/farming_fellas/icon.png",
+  "environment": "*",
+  "accessWidener": "farming_fellas.accesswidener",
+  "entrypoints": {
+    "client": [
+      "nico.farmingfellas.client.FarmingFellasClient"
+    ],
+    "main": [
+      "nico.farmingfellas.FarmingFellasMain"
+    ]
+  },
+  "mixins": [
+    "farming_fellas.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
