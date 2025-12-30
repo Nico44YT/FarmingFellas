@@ -6,6 +6,7 @@
   "mixins": [
   ],
   "client": [
+    "client.DrawContextMixin"
   ],
   "injectors": {
     "defaultRequire": 1

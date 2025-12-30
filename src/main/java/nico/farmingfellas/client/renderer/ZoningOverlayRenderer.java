@@ -2,17 +2,20 @@ package nico.farmingfellas.client.renderer;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import nico.farmingfellas.FarmingFellasUtil;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.common.item.zoning.ZoningMapItem;
@@ -21,6 +24,11 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
 
     public ZoningOverlayRenderer(FeatureRendererContext<T, M> context) {
         super(context);
+    }
+
+    public static void renderItemDot(DrawContext drawContext, ItemStack stack, int x, int y) {
+        drawContext.fill(x + 3, y + 9, x + 6, y + 14, 10000, ZoningMapItem.getColor(stack) | 0xFF000000);
+        drawContext.fill(x + 2, y + 10, x + 7, y + 13, 10000, ZoningMapItem.getColor(stack) | 0xFF000000);
     }
 
     @Override
@@ -34,18 +42,13 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
                         RenderLayer.getEntityTranslucent(getTexture(entity))
                 );
 
-                // RGBA overlay color
-                float r = 0.0f;
-                float g = 1.0f;
-                float b = 0.0f;
-                float a = 1.0f;
-
+                float[] rgb = FarmingFellasUtil.intToRgbFloat(ZoningMapItem.getColor(mainHandStack));
                 getContextModel().render(
                         matrices,
                         consumer,
                         light,
                         OverlayTexture.DEFAULT_UV,
-                        r, g, b, a
+                        rgb[0], rgb[1], rgb[2], 1f
                 );
             });
         }
@@ -70,6 +73,8 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
 
         Box box = new Box(pos1, pos2).expand(0.51f);
 
+        float[] rgb = FarmingFellasUtil.intToRgbFloat(ZoningMapItem.getColor(holdingStack));
+
         Camera camera = context.camera();
         Vec3d camPos = camera.getPos();
         VertexConsumer vc = context.consumers().getBuffer(RenderLayer.getLines());
@@ -79,7 +84,7 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
                 context.matrixStack(),
                 vc,
                 box.offset(-camPos.x, -camPos.y, -camPos.z),
-                0f, 1f, 0f, Math.min(alpha, 1)
+                rgb[0], rgb[1], rgb[2], Math.min(alpha, 1)
         );
     }
 }

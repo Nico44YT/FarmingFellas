@@ -1,7 +1,12 @@
 {
+  "itemGroup.farming_fellas.name": "Farming Fellas",
+
   "entity.farming_fellas.farming_golem": "Farming Golem",
 
   "item.farming_fellas.zoning_map.set_position": "Set pos %s to %s",
   "item.farming_fellas.zoning_map.assigned_position": "Zone assigned",
-  "item.farming_fellas.zoning_map.clear": "Zone cleared"
+  "item.farming_fellas.zoning_map.clear": "Zone cleared",
+  "item.farming_fellas.zoning_map.zone_copy": "Zone copied from golem",
+  "item.farming_fellas.zoning_map.from": "§7From: %s",
+  "item.farming_fellas.zoning_map.to": "§7To: %s"
 }
