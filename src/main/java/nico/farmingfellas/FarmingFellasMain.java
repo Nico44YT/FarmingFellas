@@ -7,6 +7,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import nico.farmingfellas.common.entity.ModEntities;
+import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.screen.ModHandledScreens;
 
 public class FarmingFellasMain implements ModInitializer {
@@ -16,6 +17,7 @@ public class FarmingFellasMain implements ModInitializer {
     @Override
     public void onInitialize() {
         ModEntities.register();
+        ModItems.register();
 
         ModHandledScreens.register();
     }
