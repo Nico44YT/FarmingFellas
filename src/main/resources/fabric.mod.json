@@ -16,6 +16,9 @@
     ],
     "main": [
       "nico.farmingfellas.FarmingFellasMain"
+    ],
+    "fabric-datagen": [
+      "nico.farmingfellas.client.datagen.FarmingFellasDataGenerator"
     ]
   },
   "mixins": [
