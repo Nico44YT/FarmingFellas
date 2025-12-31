@@ -1,11 +1,9 @@
 package nico.farmingfellas;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.minecraft.util.Identifier;
+import nico.farmingfellas.common.data.ZoneManager;
 import nico.farmingfellas.common.entity.ModEntities;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.screen.ModHandledScreens;
@@ -20,6 +18,9 @@ public class FarmingFellasMain implements ModInitializer {
         ModItems.register();
 
         ModHandledScreens.register();
+
+        ServerWorldEvents.LOAD.register(ZoneManager::onWorldLoad);
+        ServerWorldEvents.UNLOAD.register(ZoneManager::onWorldUnload);
     }
 
     public static Identifier id(String name) {
