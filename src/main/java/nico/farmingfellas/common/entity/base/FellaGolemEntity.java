@@ -283,7 +283,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     @Override
     public float getPathfindingPenalty(PathNodeType nodeType) {
         return switch (nodeType) {
-            case BLOCKED, DAMAGE_FIRE, DAMAGE_CAUTIOUS -> -1;
+            case BLOCKED, DAMAGE_FIRE, DAMAGE_CAUTIOUS -> -8;
             case WALKABLE, OPEN, DAMAGE_OTHER -> 8;
             default -> super.getPathfindingPenalty(nodeType);
         };

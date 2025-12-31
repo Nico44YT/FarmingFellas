@@ -27,7 +27,7 @@ public class FellaGolemRenderer<E extends FellaGolemEntity, M extends EntityMode
     private static final Function<FellaVariant, Identifier> TEXTURE = variant -> FarmingFellasMain.id("textures/entity/" + variant.asString() + ".png");
 
     public FellaGolemRenderer(EntityRendererFactory.Context context, M model) {
-        super(context, model, 0.5F);
+        super(context, model, 0.4F);
         this.addFeature(new HeldItemFeatureRenderer<>(this, context.getHeldItemRenderer()) {
 
             @Override

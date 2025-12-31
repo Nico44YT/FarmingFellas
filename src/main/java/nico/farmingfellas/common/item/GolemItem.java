@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
@@ -46,5 +47,9 @@ public class GolemItem extends Item {
         }
 
         return ActionResult.PASS;
+    }
+
+    public FellaGolemEntity createGolem(@Nullable World world) {
+        return factory.apply(world);
     }
 }

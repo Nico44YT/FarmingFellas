@@ -1,0 +1,10 @@
+{
+	"credit": "Nico_44",
+	"display": {
+		"gui": {
+			"rotation": [15, 145, 0],
+			"translation": [0, 0.5, 0],
+			"scale": [0.8, 0.8, 0.8]
+		}
+	}
+}
