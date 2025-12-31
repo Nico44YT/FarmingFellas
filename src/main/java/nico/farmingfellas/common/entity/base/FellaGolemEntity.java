@@ -419,4 +419,9 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     public abstract ItemStack getPickBlockStack();
 
     public abstract FellaVariant getVariant();
+
+    public boolean ignoreAngles = false;
+    public boolean ignoreAngles() {
+        return ignoreAngles;
+    }
 }

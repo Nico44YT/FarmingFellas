@@ -21,6 +21,8 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel
     private final ModelPart left_leg;
     private final ModelPart right_leg;
 
+    public boolean noAngles = false;
+
     public FarmingGolemModel(ModelPart root) {
         this.main = root.getChild("main");
         this.head = main.getChild("head");
@@ -76,7 +78,6 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
-
         // Head rotation
         this.head.pitch = headPitch * ((float) Math.PI / 180F);
         this.head.yaw = headYaw * ((float) Math.PI / 180F);
@@ -105,6 +106,11 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel
 
         this.right_arm.yaw = 0;
         this.left_arm.yaw = 0;
+
+        if(entity.ignoreAngles()) {
+            this.head.pitch = 0;
+            this.head.yaw = 0;
+        }
     }
 
     @Override

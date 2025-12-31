@@ -43,6 +43,7 @@ public class GolemItemRenderer extends ItemRenderer {
 
         cachedWorld = world;
         cachedGolem = golemItem.createGolem(world);
+        cachedGolem.ignoreAngles = true;
         cachedGolem.setYaw(180.0F);
         cachedGolem.prevYaw = 180.0F;
         cachedGolem.setPitch(0.0F);
@@ -79,5 +80,7 @@ public class GolemItemRenderer extends ItemRenderer {
         }
 
         matrices.pop();
+
+        cachedGolem.ignoreAngles = false;
     }
 }
