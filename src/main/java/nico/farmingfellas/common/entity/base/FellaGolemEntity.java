@@ -1,17 +1,20 @@
 package nico.farmingfellas.common.entity.base;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
@@ -136,11 +139,6 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         return super.interactMob(player, hand);
     }
 
-    public boolean isPositionAccessible(BlockPos pos) {
-        if(!this.isZoneSet()) return true;
-        return this.getZoneBox().contains(pos.toCenterPos());
-    }
-
     //region // * Wait / Actions * //
     private int cooldown;
 
@@ -186,6 +184,11 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     public void lookAt(Vec3d position) {
         this.getLookControl().lookAt(position);
     }
+
+    public boolean isPositionAccessible(BlockPos pos) {
+        if (!this.isZoneSet()) return true;
+        return this.getZoneBox().contains(pos.toCenterPos());
+    }
     //endregion
 
     //region // * Tracked Data * //
@@ -212,7 +215,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     }
 
     public Optional<Pair<BlockPos, BlockPos>> getZone() {
-        if(isZoneSet()) {
+        if (isZoneSet()) {
             return Optional.of(new Pair<>(this.dataTracker.get(ZONE_POS_1).get(), this.dataTracker.get(ZONE_POS_2).get()));
         }
 
@@ -232,7 +235,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         nbt.put("inventory", this.inventory.toNbtList());
         nbt.putBoolean("arms_in_air", getArmsInAir());
 
-        if(isZoneSet()) {
+        if (isZoneSet()) {
             Pair<BlockPos, BlockPos> pair = this.getZone().get();
             nbt.putLong("zone_pos_1", pair.getLeft().asLong());
             nbt.putLong("zone_pos_2", pair.getRight().asLong());
@@ -246,7 +249,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         this.inventory.readNbtList(nbt.getList("inventory", NbtElement.COMPOUND_TYPE));
         this.setArmsInAir(nbt.getBoolean("arms_in_air"));
 
-        if(nbt.contains("zone_pos_1")) {
+        if (nbt.contains("zone_pos_1")) {
             this.setZone(
                     BlockPos.fromLong(nbt.getLong("zone_pos_1")),
                     BlockPos.fromLong(nbt.getLong("zone_pos_2"))
@@ -309,7 +312,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
 
     public boolean isFull() {
         for (ItemStack stack : inventory.stacks) {
-            if(stack.isEmpty()) return false;
+            if (stack.isEmpty()) return false;
         }
 
         return true;
@@ -415,13 +418,51 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     }
     //endregion
 
+    //region // * Dropping * //
+    @Override
+    protected void dropLoot(DamageSource damageSource, boolean causedByPlayer) {
+        this.spawnItemStack(this.getPickBlockStack());
+        this.inventory.stacks.forEach(this::spawnItemStack);
+    }
+
+    private void spawnItemStack(ItemStack stack) {
+        if (this.getWorld().isClient()) return;
+        if (stack == null || stack.isEmpty() || stack.getItem().equals(Items.AIR)) return;
+
+        ItemEntity itemEntity = new ItemEntity(EntityType.ITEM, this.getWorld());
+        itemEntity.setStack(stack);
+        itemEntity.setPosition(this.getPos());
+        itemEntity.setVelocity(
+                MathHelper.nextBetween(random, -0.5f, 0.5f) / 5f,
+                MathHelper.nextBetween(random, 0.25f, 0.5f) / 2f,
+                MathHelper.nextBetween(random, -0.5f, 0.5f) / 5f
+        );
+        this.getWorld().spawnEntity(itemEntity);
+    }
+
+    @Override
+    protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
+
+    }
+    //endregion
+
+    //region // * Rendering * //
+    @Environment(EnvType.CLIENT)
+    private boolean inGui = false;
+
+    @Environment(EnvType.CLIENT)
+    public void setInGui(boolean inGui) {
+        this.inGui = inGui;
+    }
+
+    @Environment(EnvType.CLIENT)
+    public boolean isInGui() {
+        return inGui;
+    }
+    //endregion
+
     @Override
     public abstract ItemStack getPickBlockStack();
 
     public abstract FellaVariant getVariant();
-
-    public boolean ignoreAngles = false;
-    public boolean ignoreAngles() {
-        return ignoreAngles;
-    }
 }

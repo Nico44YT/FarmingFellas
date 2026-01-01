@@ -107,7 +107,7 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel
         this.right_arm.yaw = 0;
         this.left_arm.yaw = 0;
 
-        if(entity.ignoreAngles()) {
+        if(entity.isInGui()) {
             this.head.pitch = 0;
             this.head.yaw = 0;
         }

@@ -20,8 +20,6 @@ import org.jetbrains.annotations.Nullable;
 public class GolemItemRenderer extends ItemRenderer {
 
     private final MinecraftClient client;
-    private FellaGolemEntity cachedGolem;
-    private World cachedWorld;
 
     public GolemItemRenderer(MinecraftClient client, TextureManager manager, BakedModelManager bakery, ItemColors colors, BuiltinModelItemRenderer builtinModelItemRenderer) {
         super(client, manager, bakery, colors, builtinModelItemRenderer);
@@ -41,9 +39,8 @@ public class GolemItemRenderer extends ItemRenderer {
 
         var dispatcher = client.getEntityRenderDispatcher();
 
-        cachedWorld = world;
-        cachedGolem = golemItem.createGolem(world);
-        cachedGolem.ignoreAngles = true;
+        FellaGolemEntity cachedGolem = golemItem.createGolem(world);
+        cachedGolem.setInGui(true);
         cachedGolem.setYaw(180.0F);
         cachedGolem.prevYaw = 180.0F;
         cachedGolem.setPitch(0.0F);
@@ -62,13 +59,14 @@ public class GolemItemRenderer extends ItemRenderer {
         if(transformMode == ModelTransformationMode.GUI) matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(20));
         matrices.translate(0, -0.4, 0);
         matrices.scale(0.8F, 0.8F, 0.8F);
-        if(transformMode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND || transformMode == ModelTransformationMode.THIRD_PERSON_RIGHT_HAND) {
+        if(transformMode == ModelTransformationMode.THIRD_PERSON_LEFT_HAND || transformMode == ModelTransformationMode.THIRD_PERSON_RIGHT_HAND || transformMode ==  ModelTransformationMode.GROUND) {
             matrices.scale(0.8F, 0.8F, 0.8F);
             matrices.translate(0, 0.5, 0);
         }
         if(transformMode.isFirstPerson()) {
             matrices.translate(0, 0.2, 0.05);
         }
+
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-30 * rotation));
 
         dispatcher.setRenderShadows(false);
@@ -81,6 +79,6 @@ public class GolemItemRenderer extends ItemRenderer {
 
         matrices.pop();
 
-        cachedGolem.ignoreAngles = false;
+        cachedGolem.setInGui(false);
     }
 }

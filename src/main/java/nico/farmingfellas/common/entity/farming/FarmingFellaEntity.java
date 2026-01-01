@@ -1,6 +1,7 @@
 package nico.farmingfellas.common.entity.farming;
 
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -12,6 +13,7 @@ import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.goal.EmptyInventoryGoal;
 import nico.farmingfellas.common.entity.farming.goal.PlantCropGoal;
 import nico.farmingfellas.common.entity.farming.goal.harvest.*;
+import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.screen.custom.Generic3x2ContainerScreenHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +46,9 @@ public class FarmingFellaEntity extends FellaGolemEntity {
 
     @Override
     public ItemStack getPickBlockStack() {
-        return ItemStack.EMPTY;
+        ItemStack stack = ModItems.FARMING_GOLEM_ITEM.getDefaultStack();
+        if(this.hasCustomName()) stack.setCustomName(this.getCustomName());
+        return stack;
     }
 
     @Override

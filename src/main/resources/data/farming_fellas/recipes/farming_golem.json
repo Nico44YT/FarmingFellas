@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    "CPI",
+    " P "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:wheat"
+    },
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "P": {
+      "item": "minecraft:packed_mud"
+    },
+    "I": {
+      "item": "minecraft:iron_hoe"
+    }
+  },
+  "result": {
+    "item": "farming_fellas:farming_golem",
+    "count": 1
+  }
+}
