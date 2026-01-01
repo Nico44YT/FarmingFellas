@@ -8,7 +8,9 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import nico.farmingfellas.FarmingFellasMain;
+import nico.farmingfellas.FarmingFellasUtil;
 
 import java.io.File;
 import java.io.FileReader;
@@ -28,24 +30,35 @@ public class ZoneManager {
 
     public static final WorldSavePath FARMING_FELLAS_DATA = new WorldSavePath("data/" + FarmingFellasMain.MOD_ID + "/");
 
-    private final Set<Zone> zoneList;
+    private final Set<Zone> zoneSet;
 
     public ZoneManager() {
-        this.zoneList = new HashSet<>();
+        this.zoneSet = new HashSet<>();
+    }
+
+    public Zone getZone(int id) {
+        return this.zoneSet.stream().filter(zone -> zone.getZoneId() == id).findFirst().orElse(null);
     }
 
     public void addZone(Zone zone) {
-        this.zoneList.add(zone);
+        this.zoneSet.add(zone);
     }
 
     public void removeZone(Zone zone) {
-        this.zoneList.remove(zone);
+        this.zoneSet.remove(zone);
+    }
+
+    public Zone createNewZone(World world) {
+        int zoneColor = FarmingFellasUtil.randomColor(world.getRandom());
+        Zone newZone = new Zone(world.getRegistryKey().getValue(), zoneSet.size(), zoneColor, null, null, new BlockPos[0]);
+        addZone(newZone);
+        return newZone;
     }
 
     public JsonElement toJson() {
         JsonArray arr = new JsonArray();
 
-        zoneList.forEach(zone -> {
+        zoneSet.forEach(zone -> {
             arr.add(zone.toJsonObject());
         });
 
@@ -55,11 +68,11 @@ public class ZoneManager {
     public void fromJson(JsonElement json) {
         if (!json.isJsonArray()) throw new RuntimeException("Malformed JSON");
 
-        this.zoneList.clear();
+        this.zoneSet.clear();
         JsonArray arr = json.getAsJsonArray();
 
         arr.forEach(element -> {
-            this.zoneList.add(Zone.fromJson(element.getAsJsonObject()));
+            this.zoneSet.add(Zone.fromJson(element.getAsJsonObject()));
         });
     }
 
@@ -84,9 +97,6 @@ public class ZoneManager {
 
     public static void onWorldUnload(MinecraftServer server, ServerWorld world) {
         try {
-            System.out.println("UNLOADED");
-
-            getInstance().addZone(new Zone(ServerWorld.OVERWORLD.getValue(), 0, 0xFFFFFFFF, new BlockPos(0, 0, 0), new BlockPos(5, 5, 5), new BlockPos[0]));
             Path path = server.getSavePath(ZoneManager.FARMING_FELLAS_DATA);
             File dataFolder = path.toFile();
 

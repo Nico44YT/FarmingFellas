@@ -10,6 +10,7 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import nico.farmingfellas.common.data.ZoneManager;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 
 import java.util.EnumSet;
@@ -46,6 +47,12 @@ public class EmptyInventoryGoal extends Goal {
 
     @Override
     public void tick() {
+        if(!golem.isPositionAccessible(targetChest)) {
+            this.targetChest = null;
+            this.chestInventory = null;
+            return;
+        }
+
         if (golem.isEmpty()) {
             stop();
             return;
@@ -188,26 +195,34 @@ public class EmptyInventoryGoal extends Goal {
         // Map of chest position -> squared distance
         Map<BlockPos, Double> chestDistances = new HashMap<>();
 
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -1; y <= 1; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    BlockPos pos = origin.add(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+        if(golem.isZoneSet()) {
+            ZoneManager.getInstance().getZone(golem.getZoneId()).getChestPositions().forEach(chestPos -> {
+                chestDistances.put(chestPos, origin.getSquaredDistance(chestPos));
+            });
+        } else {
+            for (int x = -radius; x <= radius; x++) {
+                for (int y = -1; y <= 1; y++) {
+                    for (int z = -radius; z <= radius; z++) {
+                        BlockPos pos = origin.add(x, y, z);
+                        BlockState state = world.getBlockState(pos);
 
-                    if (state.getBlock() instanceof ChestBlock
-                            && !(state.getBlock() instanceof EnderChestBlock)) {
+                        if(!golem.isPositionAccessible(pos)) continue;
 
-                        BlockEntity be = world.getBlockEntity(pos);
-                        if (!(be instanceof ChestBlockEntity chestEntity)) continue;
+                        if (state.getBlock() instanceof ChestBlock
+                                && !(state.getBlock() instanceof EnderChestBlock)) {
 
-                        // Filter out full chests
-                        if (isChestFull(chestEntity)) continue;
+                            BlockEntity be = world.getBlockEntity(pos);
+                            if (!(be instanceof ChestBlockEntity chestEntity)) continue;
 
-                        double distSq = origin.getSquaredDistance(
-                                pos.getX(), pos.getY(), pos.getZ()
-                        );
+                            // Filter out full chests
+                            if (isChestFull(chestEntity)) continue;
 
-                        chestDistances.put(pos, distSq);
+                            double distSq = origin.getSquaredDistance(
+                                    pos.getX(), pos.getY(), pos.getZ()
+                            );
+
+                            chestDistances.put(pos, distSq);
+                        }
                     }
                 }
             }

@@ -1,178 +1,230 @@
 package nico.farmingfellas.common.item.zoning;
 
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.ChestBlock;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.util.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import nico.farmingfellas.common.data.Zone;
+import nico.farmingfellas.common.data.ZoneManager;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.item.SimpleItemModel;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+
 
 public class ZoningMapItem extends Item implements SimpleItemModel {
-    public static final String TAG_BLOCKPOS_1 = "blockpos1";
-    public static final String TAG_BLOCKPOS_2 = "blockpos2";
-    public static final String TAG_COLOR = "color";
+
+    public static final String TAG_ZONE_DATA = "zoneData";
+    public static final String TAG_ZONE_MODE = "zoningMode";
+
+    public static final String TAG_ZONE_ID = "zoneId";
+    public static final String TAG_ZONE_COLOR = "zoneColor";
+
+    public static final String TAG_CORNER_A = "corner_a";
+    public static final String TAG_CORNER_B = "corner_b";
+    public static final String TAG_CHEST_LOCATIONS = "chest_positions";
+
+    public static final String TAG_DIRTY = "dirty";
 
     public ZoningMapItem(Settings settings) {
         super(settings);
     }
 
     @Override
-    public void onCraft(ItemStack stack, World world, PlayerEntity player) {
-        super.onCraft(stack, world, player);
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        if (world.isClient()) return;
 
+        NbtCompound root = stack.getOrCreateNbt();
+        NbtCompound zoneNbt = stack.getOrCreateSubNbt(TAG_ZONE_DATA);
+        ZoneManager zoneManager = ZoneManager.getInstance();
+
+        // Initialize zoning mode once
+        if (!root.contains(TAG_ZONE_MODE)) {
+            root.putInt(TAG_ZONE_MODE, ZoningMode.AREA.asInt());
+        }
+
+        // Create zone if missing
+        if (!zoneNbt.contains(TAG_ZONE_ID)) {
+            Zone newZone = zoneManager.createNewZone(world);
+            zoneNbt.copyFrom(newZone.toNbt());
+            return;
+        }
+
+        if (root.contains(TAG_DIRTY) && root.getBoolean(TAG_DIRTY)) {
+            Zone zone = zoneManager.getZone(zoneNbt.getInt(TAG_ZONE_ID));
+            if (zone != null) {
+                zone.readNbt(zoneNbt);
+            }
+            root.putBoolean(TAG_DIRTY, false);
+        }
+    }
+
+    @Override
+    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
+        if(user.getWorld() instanceof ServerWorld && entity instanceof FellaGolemEntity golem) {
+            golem.setZone(stack.getSubNbt(TAG_ZONE_DATA).getInt(TAG_ZONE_ID));
+            return ActionResult.SUCCESS;
+        }
+        return super.useOnEntity(stack, user, entity, hand);
+    }
+
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        ItemStack stack = user.getStackInHand(hand);
+
+        if (world.isClient() || !user.isSneaking()) {
+            return TypedActionResult.success(stack);
+        }
+
+        NbtCompound nbt = stack.getOrCreateNbt();
+        ZoningMode[] modes = ZoningMode.values();
+
+        int current = nbt.getInt(TAG_ZONE_MODE);
+        int next = (current + 1) % modes.length;
+        nbt.putInt(TAG_ZONE_MODE, next);
+
+        MutableText text = Text.empty()
+                .append(Text.literal(modes[(next - 1 + modes.length) % modes.length].getName())
+                        .formatted(Formatting.DARK_GRAY))
+                .append(Text.literal("   "))
+                .append(Text.literal(modes[next].getName())
+                        .formatted(Formatting.BOLD))
+                .append(Text.literal("   "))
+                .append(Text.literal(modes[(next + 1) % modes.length].getName())
+                        .formatted(Formatting.DARK_GRAY));
+
+        user.sendMessage(text, true);
+        return TypedActionResult.success(stack);
     }
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         World world = context.getWorld();
+        if (world.isClient()) return ActionResult.SUCCESS;
+
         ItemStack stack = context.getStack();
         BlockPos pos = context.getBlockPos();
         PlayerEntity player = context.getPlayer();
 
-        if (world.isClient()) return ActionResult.SUCCESS;
+        NbtCompound root = stack.getOrCreateNbt();
+        NbtCompound zoneData = stack.getOrCreateSubNbt(TAG_ZONE_DATA);
+        ZoningMode mode = ZoningMode.fromInt(root.getInt(TAG_ZONE_MODE));
 
-        assignRandomColor(world, stack);
+        if(mode == ZoningMode.AREA) {
+            boolean hasA = zoneData.contains(TAG_CORNER_A);
+            boolean hasB = zoneData.contains(TAG_CORNER_B);
 
-        if (isZonePosSet(TAG_BLOCKPOS_1, stack)) {
-            setZonePos(TAG_BLOCKPOS_2, stack, pos);
-            player.sendMessage(Text.translatable("item.farming_fellas.zoning_map.set_position", "2", pos.toShortString()), true);
+            // If both corners are already set, restart zoning
+            if (hasA && hasB) {
+                zoneData.remove(TAG_CORNER_A);
+                zoneData.remove(TAG_CORNER_B);
+            }
+
+            // Assign next corner
+            if (!zoneData.contains(TAG_CORNER_A)) {
+                zoneData.putLong(TAG_CORNER_A, pos.asLong());
+            } else {
+                zoneData.putLong(TAG_CORNER_B, pos.asLong());
+                root.putBoolean(TAG_DIRTY, true);
+            }
+
             return ActionResult.SUCCESS;
         }
 
-        setZonePos(TAG_BLOCKPOS_1, stack, pos);
-        player.sendMessage(Text.translatable("item.farming_fellas.zoning_map.set_position", "1", pos.toShortString()), true);
+        if(mode == ZoningMode.CHEST) {
+            BlockState clickedState = world.getBlockState(pos);
+            if(!(clickedState.getBlock() instanceof ChestBlock)) return ActionResult.PASS;
+
+            Set<Long> chestLocations = new HashSet<>();
+            for (long l : zoneData.getLongArray(TAG_CHEST_LOCATIONS)) {
+                chestLocations.add(l);
+            }
+
+            if(chestLocations.contains(pos.asLong())) {
+                player.sendMessage(Text.literal("Removed chest at " + pos.toShortString()));
+                chestLocations.remove(pos.asLong());
+            } else {
+                player.sendMessage(Text.literal("Added chest at " + pos.toShortString()));
+                chestLocations.add(pos.asLong());
+            }
+
+            root.putBoolean(TAG_DIRTY, true);
+            zoneData.putLongArray(TAG_CHEST_LOCATIONS, chestLocations.stream().toList());
+        }
+
         return ActionResult.SUCCESS;
     }
 
-    @Override
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-        ItemStack stack = player.getStackInHand(hand);
-        if (world.isClient()) return TypedActionResult.success(stack);
+    public enum ZoningMode {
+        AREA("Area", 0),
+        CHEST("Chest", 1);
 
-        assignRandomColor(player.getWorld(), stack);
+        private final String name;
+        private final int id;
 
-        if (!player.isSneaking()) return TypedActionResult.pass(stack);
-
-        setZonePos(TAG_BLOCKPOS_1, stack, null);
-        setZonePos(TAG_BLOCKPOS_2, stack, null);
-        player.sendMessage(Text.translatable("item.farming_fellas.zoning_map.clear"), true);
-
-        return super.use(world, player, hand);
-    }
-
-    @Override
-    public ActionResult useOnEntity(ItemStack stack, PlayerEntity player, LivingEntity entity, Hand hand) {
-        if (player.getWorld() instanceof ServerWorld serverWorld) assignRandomColor(serverWorld, stack);
-
-        if (entity instanceof FellaGolemEntity golem && !player.getWorld().isClient()) {
-            if (isZoneSet(stack)) {
-                golem.setZone(getZonePos(TAG_BLOCKPOS_1, stack).get(), getZonePos(TAG_BLOCKPOS_2, stack).get());
-                player.sendMessage(Text.translatable("item.farming_fellas.zoning_map.assigned_position"));
-                return ActionResult.SUCCESS;
-
-            }
-
-            Pair<BlockPos, BlockPos> corners = golem.getZone().get();
-            setZonePos(TAG_BLOCKPOS_1, stack, corners.getLeft());
-            setZonePos(TAG_BLOCKPOS_2, stack, corners.getRight());
-            player.sendMessage(Text.translatable("item.farming_fellas.zoning_map.zone_copy"));
-            return ActionResult.SUCCESS;
+        ZoningMode(String name, int id) {
+            this.name = name;
+            this.id = id;
         }
 
-        return super.useOnEntity(stack, player, entity, hand);
-    }
+        public int asInt() {
+            return id;
+        }
 
+        public String getName() {
+            return this.name;
+        }
 
-    //region // * Helper * //
-    public void assignRandomColor(World world, ItemStack stack) {
-        if (stack.getOrCreateNbt().contains(TAG_COLOR)) return;
-
-        Random random = world.random;
-        float hue = random.nextFloat();                 // 0.0–1.0
-        float saturation = MathHelper.nextBetween(random, 0.6f, 0.9f);
-        float brightness = MathHelper.nextBetween(random, 0.7f, 1.0f);
-
-        int color = MathHelper.hsvToRgb(hue, saturation, brightness);
-        stack.getOrCreateNbt().putInt(TAG_COLOR, color);
+        public static ZoningMode fromInt(int id) {
+            for (ZoningMode mode : values()) {
+                if (mode.id == id) return mode;
+            }
+            return AREA;
+        }
     }
 
     public static int getColor(ItemStack stack) {
-        if(!stack.getOrCreateNbt().contains(TAG_COLOR)) return 0xFF_FF_FF;
-        return stack.getOrCreateNbt().getInt(TAG_COLOR);
+        NbtCompound zoneData = stack.getSubNbt(TAG_ZONE_DATA);
+        if (zoneData == null) return 0;
+        return zoneData.getInt(TAG_ZONE_COLOR) | 0xAA000000;
     }
 
-    public static Optional<BlockPos> getZonePos(String key, ItemStack stack) {
-        if (stack.hasNbt() && stack.getNbt() != null && stack.getNbt().contains(key)) {
-            return Optional.of(BlockPos.fromLong(stack.getNbt().getLong(key)));
-        }
-
-        return Optional.empty();
+    public static Optional<BlockPos> getZonePos(String tag, ItemStack stack) {
+        NbtCompound zoneData = stack.getSubNbt(TAG_ZONE_DATA);
+        if (zoneData == null || !zoneData.contains(tag)) return Optional.empty();
+        return Optional.of(BlockPos.fromLong(zoneData.getLong(tag)));
     }
 
-    public static void setZonePos(String key, ItemStack stack, BlockPos pos) {
-        if (pos == null) {
-            stack.getOrCreateNbt().remove(key);
-            return;
-        }
-        stack.getOrCreateNbt().putLong(key, pos.asLong());
+    public static boolean isZonePosSet(String tag, ItemStack stack) {
+        NbtCompound zoneData = stack.getSubNbt(TAG_ZONE_DATA);
+        return zoneData != null && zoneData.contains(tag);
     }
 
-    public static boolean isZonePosSet(String key, ItemStack stack) {
-        return stack.hasNbt() && stack.getNbt() != null && stack.getNbt().contains(key);
+    public static boolean isSameZone(ItemStack stack, BlockPos a, BlockPos b) {
+        Optional<BlockPos> thisA = getZonePos(TAG_CORNER_A, stack);
+        Optional<BlockPos> thisB = getZonePos(TAG_CORNER_B, stack);
+
+        if (thisA.isEmpty() || thisB.isEmpty()) return false;
+
+        return (thisA.get().equals(a) && thisB.get().equals(b))
+                || (thisA.get().equals(b) && thisB.get().equals(a));
     }
 
-    public static boolean isZoneSet(ItemStack stack) {
-        return isZonePosSet(TAG_BLOCKPOS_1, stack) && isZonePosSet(TAG_BLOCKPOS_2, stack);
-    }
-
-    public static boolean isAnyPosSet(ItemStack stack) {
-        return isZonePosSet(TAG_BLOCKPOS_1, stack) || isZonePosSet(TAG_BLOCKPOS_2, stack);
-    }
-
-    public static boolean isSameZone(ItemStack stack, BlockPos pos1, BlockPos pos2) {
-        if (!isZoneSet(stack)) return false;
-
-        BlockPos thisPos1 = getZonePos(TAG_BLOCKPOS_1, stack).get();
-        BlockPos thisPos2 = getZonePos(TAG_BLOCKPOS_2, stack).get();
-
-        return (thisPos1.equals(pos1) && thisPos2.equals(pos2)) || (thisPos1.equals(pos2) && thisPos2.equals(pos1));
-    }
-    //endregion
-
-
-    @Override
-    public Text getName(ItemStack stack) {
-        return super.getName(stack).copy().styled(style -> style.withColor(getColor(stack)));
-    }
-
-    @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        super.appendTooltip(stack, world, tooltip, context);
-
-        getZonePos(TAG_BLOCKPOS_1, stack).ifPresent(blockPos -> {
-            tooltip.add(Text.translatable("item.farming_fellas.zoning_map.from", blockPos.toShortString()));
-        });
-
-        getZonePos(TAG_BLOCKPOS_2, stack).ifPresent(blockPos -> {
-            tooltip.add(Text.translatable("item.farming_fellas.zoning_map.to", blockPos.toShortString()));
-        });
-    }
-
-    @Override
-    public boolean hasGlint(ItemStack stack) {
-        return isAnyPosSet(stack);
+    public static List<BlockPos> getChestPositions(ItemStack holdingStack) {
+        return Arrays.stream(holdingStack.getSubNbt(TAG_ZONE_DATA).getLongArray(TAG_CHEST_LOCATIONS)).mapToObj(BlockPos::fromLong).toList();
     }
 }

@@ -123,7 +123,7 @@ public abstract class HarvestCropGoal extends Goal {
     }
 
     private BlockPos findHarvestableCropInZone() {
-        Pair<BlockPos, BlockPos> corners = golem.getZone().get();
+        Pair<BlockPos, BlockPos> corners = golem.getZoneCorners().get();
         World world = golem.getWorld();
         BlockPos origin = golem.getBlockPos();
 

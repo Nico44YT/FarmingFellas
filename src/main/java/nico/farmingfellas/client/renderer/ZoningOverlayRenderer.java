@@ -28,17 +28,19 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
     }
 
     public static void renderItemDot(DrawContext drawContext, ItemStack stack, int x, int y) {
-        drawContext.fill(x + 3, y + 9, x + 6, y + 14, 10000, ZoningMapItem.getColor(stack) | 0xAA000000);
-        drawContext.fill(x + 2, y + 10, x + 7, y + 13, 10000, ZoningMapItem.getColor(stack) | 0xAA000000);
+        drawContext.fill(x + 3, y + 9, x + 6, y + 14, 10000, ZoningMapItem.getColor(stack));
+        drawContext.fill(x + 2, y + 10, x + 7, y + 13, 10000, ZoningMapItem.getColor(stack));
     }
 
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
+        if (entity.isInGui()) return;
+
         ItemStack mainHandStack = MinecraftClient.getInstance().player.getStackInHand(Hand.MAIN_HAND);
         if (mainHandStack.getItem() instanceof ZoningMapItem) {
-            entity.getZone().ifPresent(pair -> {
-                if (!ZoningMapItem.isSameZone(mainHandStack, pair.getLeft(), pair.getRight())) return;
-
+            int golemZoneId = entity.getZoneId();
+            int planZoneId = mainHandStack.getSubNbt(ZoningMapItem.TAG_ZONE_DATA).getInt(ZoningMapItem.TAG_ZONE_ID);
+            if (golemZoneId == planZoneId) {
                 VertexConsumer consumer = vertexConsumers.getBuffer(
                         RenderLayer.getEntityTranslucent(getTexture(entity))
                 );
@@ -51,7 +53,7 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
                         OverlayTexture.DEFAULT_UV,
                         rgb[0], rgb[1], rgb[2], 1f
                 );
-            });
+            }
         }
     }
 
@@ -62,15 +64,15 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
         ItemStack holdingStack = client.player.getStackInHand(Hand.MAIN_HAND);
 
         HitResult hitResult = client.player.raycast(6, 0.0F, false);
-        if (hitResult.getType() != HitResult.Type.BLOCK && !(ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_BLOCKPOS_1, holdingStack) && ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_BLOCKPOS_2, holdingStack)))
+        if (hitResult.getType() != HitResult.Type.BLOCK && !(ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_CORNER_A, holdingStack) && ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_CORNER_B, holdingStack)))
             return;
 
         if (!holdingStack.isOf(ModItems.BLANK_ZONING_MAP)) return;
-        if (!ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_BLOCKPOS_1, holdingStack) && !ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_BLOCKPOS_2, holdingStack))
+        if (!ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_CORNER_A, holdingStack) && !ZoningMapItem.isZonePosSet(ZoningMapItem.TAG_CORNER_B, holdingStack))
             return;
 
-        Vec3d pos1 = ZoningMapItem.getZonePos(ZoningMapItem.TAG_BLOCKPOS_1, holdingStack).orElseGet(() -> ((BlockHitResult) hitResult).getBlockPos()).toCenterPos();
-        Vec3d pos2 = ZoningMapItem.getZonePos(ZoningMapItem.TAG_BLOCKPOS_2, holdingStack).orElseGet(() -> ((BlockHitResult) hitResult).getBlockPos()).toCenterPos();
+        Vec3d pos1 = ZoningMapItem.getZonePos(ZoningMapItem.TAG_CORNER_A, holdingStack).orElseGet(() -> ((BlockHitResult) hitResult).getBlockPos()).toCenterPos();
+        Vec3d pos2 = ZoningMapItem.getZonePos(ZoningMapItem.TAG_CORNER_B, holdingStack).orElseGet(() -> ((BlockHitResult) hitResult).getBlockPos()).toCenterPos();
 
         Box box = new Box(pos1, pos2).expand(0.51f);
 
@@ -87,6 +89,16 @@ public class ZoningOverlayRenderer<T extends FellaGolemEntity, M extends EntityM
                 box.offset(-camPos.x, -camPos.y, -camPos.z),
                 rgb[0], rgb[1], rgb[2], Math.min(alpha, 1)
         );
+
+        ZoningMapItem.getChestPositions(holdingStack).forEach(chestPosition -> {
+            Box chestBox = new Box(chestPosition, chestPosition).expand(7/16f + 0.01);
+            WorldRenderer.drawBox(
+                    context.matrixStack(),
+                    vc,
+                    chestBox.offset(-camPos.x + 0.5, -camPos.y + 7/16f, -camPos.z + 0.5),
+                    rgb[0], rgb[1], rgb[2], Math.min(alpha, 1)
+            );
+        });
     }
 
     public static void drawPanel(
