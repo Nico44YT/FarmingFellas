@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.item.GolemItem;
 import org.jetbrains.annotations.Nullable;
 
@@ -40,7 +41,7 @@ public class GolemItemRenderer extends ItemRenderer {
         var dispatcher = client.getEntityRenderDispatcher();
 
         FellaGolemEntity cachedGolem = golemItem.createGolem(world);
-        cachedGolem.setInGui(true);
+        cachedGolem.setState(GolemAnimationState.GUI);
         cachedGolem.setYaw(180.0F);
         cachedGolem.prevYaw = 180.0F;
         cachedGolem.setPitch(0.0F);
@@ -79,6 +80,6 @@ public class GolemItemRenderer extends ItemRenderer {
 
         matrices.pop();
 
-        cachedGolem.setInGui(false);
+        cachedGolem.setState(GolemAnimationState.IDLE);
     }
 }

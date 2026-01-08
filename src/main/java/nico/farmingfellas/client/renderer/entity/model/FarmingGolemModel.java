@@ -8,6 +8,7 @@ import net.minecraft.client.render.entity.model.ModelWithHead;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.MathHelper;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
 
 public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel<T> implements ModelWithHead, ModelWithArms {
@@ -20,8 +21,6 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel
     private final ModelPart chest;
     private final ModelPart left_leg;
     private final ModelPart right_leg;
-
-    public boolean noAngles = false;
 
     public FarmingGolemModel(ModelPart root) {
         this.main = root.getChild("main");
@@ -89,11 +88,11 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends EntityModel
         this.right_leg.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
         this.left_leg.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
 
-        if (entity.getArmsInAir()) {
+        if (entity.getState() == GolemAnimationState.BEGGING_COOKIE) {
             this.right_arm.pitch = -150 * ((float) Math.PI / 180F);
             this.left_arm.pitch = -150 * ((float) Math.PI / 180F);
             return;
-        } else if (entity.hasCookie()) {
+        } else if (entity.getState() == GolemAnimationState.EATING_COOKIE) {
             this.right_arm.pitch = (-45f + (float) Math.sin(entity.age) * 15) * ((float) Math.PI / 180F);
             this.right_arm.yaw = -22.5f * ((float) Math.PI / 180F);
             this.left_arm.pitch = 0;

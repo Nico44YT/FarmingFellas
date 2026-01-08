@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -89,6 +90,7 @@ public class EmptyInventoryGoal extends Goal {
         super.stop();
 
         this.golem.getNavigation().stop();
+        this.golem.setState(GolemAnimationState.IDLE);
     }
 
     private void moveToChest() {
@@ -148,6 +150,8 @@ public class EmptyInventoryGoal extends Goal {
                 true
         );
         this.transferSlot = 0;
+
+        this.golem.setState(GolemAnimationState.CHEST);
     }
 
     private ItemStack insertIntoInventory(Inventory inv, ItemStack stack) {

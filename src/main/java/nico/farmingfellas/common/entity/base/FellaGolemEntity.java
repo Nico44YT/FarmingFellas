@@ -1,7 +1,5 @@
 package nico.farmingfellas.common.entity.base;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -41,7 +39,7 @@ import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
 import java.util.function.Consumer;
 
 public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory {
-    private static final TrackedData<Boolean> ARMS_IN_AIR = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+    private static final TrackedData<String> STATE = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.STRING);
 
     private final SimpleInventory inventory;
 
@@ -69,7 +67,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     protected void initDataTracker() {
         super.initDataTracker();
 
-        this.dataTracker.startTracking(ARMS_IN_AIR, false);
+        this.dataTracker.startTracking(STATE, GolemAnimationState.IDLE.asString());
     }
 
     @Override
@@ -85,7 +83,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.tick();
 
         if (getWorld() instanceof ServerWorld && getStackInHand(Hand.MAIN_HAND).isOf(Items.COOKIE)) {
-            this.setArmsInAir(false);
+            this.setState(GolemAnimationState.EATING_COOKIE);
 
             if (doActionAndWait(80, this, (cooldown) -> {
                 if (random.nextBetween(1, 100) < 20) {
@@ -109,7 +107,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
                 }
             })) return;
 
-            setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+            this.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+            this.setState(GolemAnimationState.IDLE);
         }
     }
 
@@ -121,12 +120,29 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
             return ActionResult.SUCCESS;
         }
 
-        if (player.isSneaking()) {
+        if (!player.isSneaking()) {
             this.open(player);
             return ActionResult.SUCCESS;
         }
 
+        if (player.isSneaking() && hand == Hand.MAIN_HAND) {
+            this.getPickedUp(player);
+            return ActionResult.SUCCESS;
+        }
+
         return super.interactMob(player, hand);
+    }
+
+    private void getPickedUp(PlayerEntity player) {
+        ItemStack entityStack = this.getPickBlockStack();
+
+        if (player.getStackInHand(Hand.MAIN_HAND).isEmpty()) {
+            player.setStackInHand(Hand.MAIN_HAND, entityStack);
+        } else {
+            player.giveItemStack(entityStack);
+        }
+
+        this.discard();
     }
 
     //region // * Wait / Actions * //
@@ -182,17 +198,13 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     //endregion
 
     //region // * Tracked Data * //
-
-    // Arms
-    public void setArmsInAir(boolean value) {
-        this.dataTracker.set(ARMS_IN_AIR, value);
+    public void setState(GolemAnimationState state) {
+        this.dataTracker.set(STATE, state.asString());
     }
 
-    public boolean getArmsInAir() {
-        return this.dataTracker.get(ARMS_IN_AIR);
+    public GolemAnimationState getState() {
+        return GolemAnimationState.valueOf(this.dataTracker.get(STATE).toUpperCase());
     }
-
-    // Zone
 
     //endregion
 
@@ -202,7 +214,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.writeCustomDataToNbt(nbt);
 
         nbt.put("inventory", this.inventory.toNbtList());
-        nbt.putBoolean("arms_in_air", getArmsInAir());
+        nbt.putString("state", getState().asString());
     }
 
     @Override
@@ -210,7 +222,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.readCustomDataFromNbt(nbt);
 
         this.inventory.readNbtList(nbt.getList("inventory", NbtElement.COMPOUND_TYPE));
-        this.setArmsInAir(nbt.getBoolean("arms_in_air"));
+        this.setState(GolemAnimationState.valueOf(nbt.getString("state").toUpperCase()));
     }
     //endregion
 
@@ -372,6 +384,10 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         // 3. Return leftovers
         return remainder;
     }
+
+    public SimpleInventory getInventory() {
+        return this.inventory;
+    }
     //endregion
 
     //region // * Dropping * //
@@ -379,6 +395,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     protected void dropLoot(DamageSource damageSource, boolean causedByPlayer) {
         this.spawnItemStack(this.getPickBlockStack());
         this.inventory.stacks.forEach(this::spawnItemStack);
+        this.inventory.clear();
     }
 
     private void spawnItemStack(ItemStack stack) {
@@ -403,17 +420,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     //endregion
 
     //region // * Rendering * //
-    @Environment(EnvType.CLIENT)
-    private boolean inGui = false;
-
-    @Environment(EnvType.CLIENT)
-    public void setInGui(boolean inGui) {
-        this.inGui = inGui;
-    }
-
-    @Environment(EnvType.CLIENT)
     public boolean isInGui() {
-        return inGui;
+        return this.getState() == GolemAnimationState.GUI;
     }
     //endregion
 
