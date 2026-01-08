@@ -33,6 +33,7 @@ public class FellaTemptGoal extends TemptGoal {
         super.stop();
 
         this.golem.jumpingMultiplier = 1f;
+        this.golem.setState(GolemAnimationState.IDLE);
     }
 
     @Override

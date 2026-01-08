@@ -151,7 +151,7 @@ public class EmptyInventoryGoal extends Goal {
         );
         this.transferSlot = 0;
 
-        this.golem.setState(GolemAnimationState.CHEST);
+        this.golem.setState(GolemAnimationState.INTERACT_CHEST);
     }
 
     private ItemStack insertIntoInventory(Inventory inv, ItemStack stack) {

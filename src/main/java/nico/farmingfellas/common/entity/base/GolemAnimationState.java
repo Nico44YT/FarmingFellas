@@ -5,7 +5,7 @@ import net.minecraft.util.StringIdentifiable;
 public enum GolemAnimationState implements StringIdentifiable {
     IDLE("idle"),
     WORKING("working"),
-    CHEST("chest"),
+    INTERACT_CHEST("interact_chest"),
     BEGGING_COOKIE("begging_cookie"),
     EATING_COOKIE("eating_cookie"),
     GUI("gui");
