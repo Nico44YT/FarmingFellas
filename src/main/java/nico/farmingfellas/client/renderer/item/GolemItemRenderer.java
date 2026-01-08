@@ -70,9 +70,9 @@ public class GolemItemRenderer extends ItemRenderer {
 
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-30 * rotation));
 
-        dispatcher.setRenderShadows(false);
 
         try {
+            dispatcher.setRenderShadows(false);
             dispatcher.render(cachedGolem, 0.0, 0.0, 0.0, 0.0F, client.getTickDelta(), matrices, vertexConsumers, light);
         } finally {
             dispatcher.setRenderShadows(true);
