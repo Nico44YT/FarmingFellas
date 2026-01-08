@@ -34,9 +34,9 @@ public class ModEntities {
         return register(name, typeBuilder.build(), attributes);
     }
     private static <T extends LivingEntity> EntityType<T> register(String name, EntityType<T> type, Supplier<DefaultAttributeContainer.Builder> attributes) {
-        var $ = Registry.register(Registries.ENTITY_TYPE, FarmingFellasMain.id(name), type);
-        ATTRIBUTES.put($, attributes);
-        return $;
+        var registeredType = Registry.register(Registries.ENTITY_TYPE, FarmingFellasMain.id(name), type);
+        ATTRIBUTES.put(registeredType, attributes);
+        return registeredType;
     }
 
 }

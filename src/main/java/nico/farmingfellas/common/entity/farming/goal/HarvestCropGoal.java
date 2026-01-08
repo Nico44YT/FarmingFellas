@@ -81,8 +81,6 @@ public abstract class HarvestCropGoal extends Goal {
         BlockPos origin = golem.getBlockPos();
         World world = golem.getWorld();
 
-        if(golem.isZoneSet()) return findHarvestableCropInZone();
-
         int radius = 5;
 
         // Map of crop position -> squared distance
@@ -120,46 +118,6 @@ public abstract class HarvestCropGoal extends Goal {
                 .min(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(null);
-    }
-
-    private BlockPos findHarvestableCropInZone() {
-        Pair<BlockPos, BlockPos> corners = golem.getZoneCorners().get();
-        World world = golem.getWorld();
-        BlockPos origin = golem.getBlockPos();
-
-        BlockPos c1 = corners.getLeft();
-        BlockPos c2 = corners.getRight();
-
-        int minX = Math.min(c1.getX(), c2.getX());
-        int maxX = Math.max(c1.getX(), c2.getX());
-        int minY = Math.min(c1.getY(), c2.getY());
-        int maxY = Math.max(c1.getY(), c2.getY());
-        int minZ = Math.min(c1.getZ(), c2.getZ());
-        int maxZ = Math.max(c1.getZ(), c2.getZ());
-
-        BlockPos closest = null;
-        double closestDist = Double.MAX_VALUE;
-
-        BlockPos.Mutable pos = new BlockPos.Mutable();
-
-        for (int y = minY; y <= maxY; y++) {
-            for (int x = minX; x <= maxX; x++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    pos.set(x, y, z);
-
-                    BlockState state = world.getBlockState(pos);
-                    if (!isValidCrop(world, pos, state)) continue;
-
-                    double dist = origin.getSquaredDistance(x + 0.5, y, z + 0.5);
-                    if (dist < closestDist) {
-                        closestDist = dist;
-                        closest = pos.toImmutable();
-                    }
-                }
-            }
-        }
-
-        return closest;
     }
 
     public boolean isNearCrop() {
