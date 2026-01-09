@@ -36,10 +36,13 @@ import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory {
     private static final TrackedData<String> STATE = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.STRING);
+    private static final TrackedData<Optional<UUID>> ZONE_ID = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
     private final SimpleInventory inventory;
 
@@ -68,6 +71,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.initDataTracker();
 
         this.dataTracker.startTracking(STATE, GolemAnimationState.IDLE.asString());
+        this.dataTracker.startTracking(ZONE_ID, Optional.empty());
     }
 
     @Override
