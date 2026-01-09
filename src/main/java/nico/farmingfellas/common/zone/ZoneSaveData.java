@@ -10,6 +10,7 @@ import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
 import nico.farmingfellas.FarmingFellasMain;
 
+import java.io.File;
 import java.util.*;
 
 public class ZoneSaveData extends PersistentState {
@@ -21,15 +22,32 @@ public class ZoneSaveData extends PersistentState {
     }
 
     public static ZoneSaveData get(MinecraftServer server) {
-        return server.getWorld(World.OVERWORLD).getPersistentStateManager().getOrCreate(nbt -> ZoneSaveData.fromNbt(server, nbt), ZoneSaveData::ofEmpty, ID.toString());
+        var state = server.getWorld(World.OVERWORLD).getPersistentStateManager().getOrCreate(nbt -> ZoneSaveData.fromNbt(server, nbt), ZoneSaveData::ofEmpty, ID.toString().replace(":", "/"));
+        state.markDirty();
+        return state;
+    }
+
+    @Override
+    public void save(File file) {
+        file.getParentFile().mkdirs(); // WTF MOJANG?! JUST CREATE THE FUCKING FOLDERS!
+        super.save(file);
     }
 
     public static Set<Zone> getZones(ServerWorld serverWorld) {
-        return get(serverWorld.getServer()).zoneMap.get(serverWorld);
+        return get(serverWorld.getServer()).zoneMap.computeIfAbsent(serverWorld, $ -> new HashSet<>());
     }
 
     public static Optional<Zone> getZone(ServerWorld serverWorld, UUID zoneId) {
         return getZones(serverWorld).stream().filter(zone -> zone.getZoneId().equals(zoneId)).findFirst();
+    }
+
+    public static Zone getOrCreateZone(ServerWorld serverWorld, UUID zoneId) {
+        Optional<Zone> zone = getZone(serverWorld, zoneId);
+        if(zone.isPresent()) return zone.get();
+
+        Zone newZone = new Zone(zoneId);
+        getZones(serverWorld).add(newZone);
+        return newZone;
     }
 
     public static ZoneSaveData fromNbt(MinecraftServer server, NbtCompound nbt) {
@@ -42,7 +60,7 @@ public class ZoneSaveData extends PersistentState {
             Set<Zone> zones = new HashSet<>();
 
             nbt.getCompound(worldKey).getKeys().forEach(zoneId -> {
-                zones.add(Zone.fromNbt(nbt.getCompound(zoneId)));
+                zones.add(Zone.fromNbt(nbt.getCompound(worldKey).getCompound(zoneId)));
             });
 
             saveData.zoneMap.put(world, zones);
