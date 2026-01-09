@@ -35,12 +35,14 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
+import nico.farmingfellas.common.zone.Zone;
+import nico.farmingfellas.common.zone.ZoneSaveData;
 
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory {
+public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory, ZoneHolderEntity {
     private static final TrackedData<String> STATE = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.STRING);
     private static final TrackedData<Optional<UUID>> ZONE_ID = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
@@ -149,6 +151,11 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         this.discard();
     }
 
+    @Override
+    public boolean isInZone(BlockPos targetPosition) {
+        return false;
+    }
+
     //region // * Wait / Actions * //
     private int cooldown;
 
@@ -210,6 +217,20 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         return GolemAnimationState.valueOf(this.dataTracker.get(STATE).toUpperCase());
     }
 
+    public Optional<Zone> getZone() {
+        if(this.getWorld() instanceof ServerWorld serverWorld) {
+            Optional<UUID> id = this.dataTracker.get(ZONE_ID);
+
+            return id.flatMap(value -> ZoneSaveData.getZone(serverWorld, value));
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public void setZone(UUID zoneId) {
+        this.dataTracker.set(ZONE_ID, Optional.of(zoneId));
+    }
     //endregion
 
     //region // * Saving / Loading * //

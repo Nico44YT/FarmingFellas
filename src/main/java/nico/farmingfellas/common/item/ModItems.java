@@ -21,7 +21,7 @@ public class ModItems {
     public static Set<Item> items = new HashSet<>();
     public static final RegistryKey<ItemGroup> ITEM_GROUP = RegistryKey.of(RegistryKeys.ITEM_GROUP, FarmingFellasMain.id("item_group"));
 
-    public static final Item BLANK_ZONING_MAP = register("blank_zoning_map", new Item.Settings().maxCount(1), Item::new);
+    public static final Item BLANK_ZONING_MAP = register("blank_zoning_map", new Item.Settings().maxCount(1), ZoneItem::new);
 
     public static final Item FARMING_GOLEM_ITEM = register("farming_golem", new Item.Settings(), $ -> new GolemItem($, world -> new FarmingFellaEntity(ModEntities.FARMING_GOLEM, world)));
 
