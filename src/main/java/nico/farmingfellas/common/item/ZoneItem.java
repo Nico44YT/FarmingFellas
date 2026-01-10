@@ -1,11 +1,14 @@
 package nico.farmingfellas.common.item;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.zone.Zone;
@@ -16,6 +19,7 @@ import java.util.UUID;
 
 public class ZoneItem extends Item {
 
+    private static final String ZONE_LAST_UPDATE_TIME = "last_update_time";
     private static final String ZONE_ID = "zone_id";
     private static final String ZONE_DATA = "zone_data";
     private static final String ZONE_DIRTY = "zone_dirty";
@@ -35,7 +39,13 @@ public class ZoneItem extends Item {
 
         // Load stack data into zone
         if (stack.getSubNbt(ZONE_DATA) != null) {
-            zone.fromNbt(stack.getSubNbt(ZONE_DATA));
+            if(zone.getLastUpdateTime() < getLastUpdateTime(stack)) {
+                NbtCompound nbtCompound = stack.getSubNbt(ZONE_DATA);
+                assert nbtCompound != null;
+                zone.copyData(Zone.fromNbt(nbtCompound));
+            } else {
+                stack.getSubNbt(ZONE_DATA).copyFrom(zone.asNbt());
+            }
         }
 
         // Sync back if dirty
@@ -62,13 +72,14 @@ public class ZoneItem extends Item {
         Zone zone = ZoneSaveData.getOrCreateZone(serverWorld, zoneId);
 
         if (zone.getCornerB().isEmpty()) {
-            zone.setCornerB(pos);
+            zone.setCornerB(world, pos);
         } else {
-            zone.setCorners(pos, null);
+            zone.setCorners(world, pos, null);
         }
 
         stack.getOrCreateSubNbt(ZONE_DATA).copyFrom(zone.asNbt());
         setDirty(stack, true);
+
 
         return ActionResult.SUCCESS;
     }
@@ -91,6 +102,14 @@ public class ZoneItem extends Item {
         stack.getOrCreateNbt().putBoolean(ZONE_DIRTY, dirty);
     }
 
+    private static void setLastUpdateTime(ItemStack stack, long lastUpdateTime) {
+        stack.getOrCreateSubNbt(ZONE_DATA).putLong(ZONE_LAST_UPDATE_TIME, lastUpdateTime);
+    }
+
+    private static long getLastUpdateTime(ItemStack stack) {
+        return stack.getOrCreateSubNbt(ZONE_DATA).getLong(ZONE_LAST_UPDATE_TIME);
+    }
+
     public static Optional<BlockPos> getCornerA(ItemStack stack) {
         if(stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).contains("corner_a")) return Optional.empty();
         return Optional.of(BlockPos.fromLong(stack.getSubNbt(ZONE_DATA).getLong("corner_a")));
@@ -99,5 +118,10 @@ public class ZoneItem extends Item {
     public static Optional<BlockPos> getCornerB(ItemStack stack) {
         if(stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).contains("corner_b")) return Optional.empty();
         return Optional.of(BlockPos.fromLong(stack.getSubNbt(ZONE_DATA).getLong("corner_b")));
+    }
+
+    @Override
+    public boolean allowNbtUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack) {
+        return false;
     }
 }

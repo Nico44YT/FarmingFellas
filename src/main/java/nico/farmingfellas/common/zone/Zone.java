@@ -2,6 +2,8 @@ package nico.farmingfellas.common.zone;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -13,20 +15,25 @@ public class Zone {
     private BlockPos cornerA;
     private BlockPos cornerB;
 
+    private long lastUpdateTime;
+
     public Zone(UUID zoneId) {
         this.zoneId = zoneId;
     }
 
-    public void setCorners(BlockPos cornerA, BlockPos cornerB) {
+    public void setCorners(@Nullable World world, BlockPos cornerA, BlockPos cornerB) {
+        if(world != null) this.lastUpdateTime = world.getTime();
         this.cornerA = cornerA;
         this.cornerB = cornerB;
     }
 
-    public void setCornerA(BlockPos cornerA) {
+    public void setCornerA(@Nullable World world, BlockPos cornerA) {
+        if(world != null) this.lastUpdateTime = world.getTime();
         this.cornerA = cornerA;
     }
 
-    public void setCornerB(BlockPos cornerB) {
+    public void setCornerB(@Nullable World world, BlockPos cornerB) {
+        if(world != null) this.lastUpdateTime = world.getTime();
         this.cornerB = cornerB;
     }
 
@@ -40,6 +47,14 @@ public class Zone {
 
     public UUID getZoneId() {
         return this.zoneId;
+    }
+
+    public long getLastUpdateTime() {
+        return this.lastUpdateTime;
+    }
+
+    public void setLastUpdateTime(long lastUpdateTime) {
+        this.lastUpdateTime = lastUpdateTime;
     }
 
     @Override
@@ -57,6 +72,7 @@ public class Zone {
 
         if (cornerA != null) nbt.putLong("corner_a", cornerA.asLong());
         if (cornerB != null) nbt.putLong("corner_b", cornerB.asLong());
+        nbt.putLong("last_update_time", lastUpdateTime);
         nbt.putUuid("zone_id", zoneId);
 
         return nbt;
@@ -64,8 +80,9 @@ public class Zone {
 
     public static Zone fromNbt(NbtCompound nbt) {
         Zone zone = new Zone(nbt.getUuid("zone_id"));
-        if (nbt.contains("corner_a")) zone.setCornerA(BlockPos.fromLong(nbt.getLong("corner_a")));
-        if (nbt.contains("corner_b")) zone.setCornerB(BlockPos.fromLong(nbt.getLong("corner_b")));
+        if (nbt.contains("corner_a")) zone.setCornerA(null, BlockPos.fromLong(nbt.getLong("corner_a")));
+        if (nbt.contains("corner_b")) zone.setCornerB(null, BlockPos.fromLong(nbt.getLong("corner_b")));
+        zone.lastUpdateTime = nbt.getLong("last_update_time");
 
         return zone;
     }
@@ -73,5 +90,6 @@ public class Zone {
     public void copyData(Zone otherZone) {
         this.cornerA = otherZone.cornerA;
         this.cornerB = otherZone.cornerB;
+        this.lastUpdateTime = otherZone.lastUpdateTime;
     }
 }
