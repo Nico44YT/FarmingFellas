@@ -1,7 +1,6 @@
 package nico.farmingfellas.common.zone;
 
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Optional;
@@ -56,8 +55,8 @@ public class Zone {
     public NbtCompound asNbt() {
         NbtCompound nbt = new NbtCompound();
 
-        if(cornerA != null) nbt.putLong("corner_a", cornerA.asLong());
-        if(cornerB != null) nbt.putLong("corner_b", cornerB.asLong());
+        if (cornerA != null) nbt.putLong("corner_a", cornerA.asLong());
+        if (cornerB != null) nbt.putLong("corner_b", cornerB.asLong());
         nbt.putUuid("zone_id", zoneId);
 
         return nbt;
@@ -65,8 +64,8 @@ public class Zone {
 
     public static Zone fromNbt(NbtCompound nbt) {
         Zone zone = new Zone(nbt.getUuid("zone_id"));
-        if(nbt.contains("corner_a")) zone.setCornerA(BlockPos.fromLong(nbt.getLong("corner_a")));
-        if(nbt.contains("corner_b")) zone.setCornerA(BlockPos.fromLong(nbt.getLong("corner_b")));
+        if (nbt.contains("corner_a")) zone.setCornerA(BlockPos.fromLong(nbt.getLong("corner_a")));
+        if (nbt.contains("corner_b")) zone.setCornerB(BlockPos.fromLong(nbt.getLong("corner_b")));
 
         return zone;
     }
