@@ -1,16 +1,15 @@
 package nico.farmingfellas.common.item;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.item.TooltipContext;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -22,9 +21,7 @@ import nico.farmingfellas.common.zone.Zone;
 import nico.farmingfellas.common.zone.ZoneSaveData;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class ZoneItem extends Item {
 
@@ -39,11 +36,12 @@ public class ZoneItem extends Item {
 
     @Override
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-        if(entity instanceof ZoneHolderEntity zoneHolderEntity && user.isSneaking() && hand == Hand.MAIN_HAND) return zoneHolderEntity.assignZone(getZoneId(stack), stack, user);
+        if (entity instanceof ZoneHolderEntity zoneHolderEntity && user.isSneaking() && hand == Hand.MAIN_HAND)
+            return zoneHolderEntity.assignZone(getZoneId(stack), stack, user);
         return super.useOnEntity(stack, user, entity, hand);
     }
 
-    @Override
+    /*@Override
     public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
         super.inventoryTick(stack, world, entity, slot, selected);
 
@@ -51,6 +49,16 @@ public class ZoneItem extends Item {
 
         UUID zoneId = getOrCreateZoneId(stack);
         Zone zone = ZoneSaveData.getOrCreateZone(serverWorld, zoneId);
+
+        // Sync back if dirty
+        if (isDirty(stack)) {
+            ZoneSaveData.getZone(serverWorld, zoneId).ifPresent(saved -> {
+                saved.copyData(Zone.fromNbt(stack.getSubNbt(ZONE_DATA)));
+                stack.getSubNbt(ZONE_DATA).copyFrom(saved.asNbt());
+            });
+            setDirty(stack, false);
+            return;
+        }
 
         // Load stack data into zone
         if (stack.getSubNbt(ZONE_DATA) != null) {
@@ -61,15 +69,6 @@ public class ZoneItem extends Item {
             } else {
                 stack.getSubNbt(ZONE_DATA).copyFrom(zone.asNbt());
             }
-        }
-
-        // Sync back if dirty
-        if (isDirty(stack)) {
-            ZoneSaveData.getZone(serverWorld, zoneId)
-                    .ifPresent(saved -> saved.copyData(zone));
-
-            stack.getOrCreateSubNbt(ZONE_DATA).copyFrom(zone.asNbt());
-            setDirty(stack, false);
         }
     }
 
@@ -87,6 +86,14 @@ public class ZoneItem extends Item {
         Zone zone = ZoneSaveData.getOrCreateZone(serverWorld, zoneId);
         zone.setLastUpdateTime(world.getTime());
 
+        if (world.getBlockEntity(pos) instanceof Inventory && context.getPlayer().isSneaking()) {
+            zone.addInventoryBlock(pos);
+            stack.getOrCreateSubNbt(ZONE_DATA).copyFrom(zone.asNbt());
+            setDirty(stack, true);
+
+            return ActionResult.SUCCESS;
+        }
+
         if (zone.getCornerB().isEmpty()) {
             zone.setCornerB(world, pos);
         } else {
@@ -98,6 +105,76 @@ public class ZoneItem extends Item {
 
 
         return ActionResult.SUCCESS;
+    }*/
+
+    @Override
+    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+        super.inventoryTick(stack, world, entity, slot, selected);
+        if (world instanceof ServerWorld serverWorld) {
+            if(stack.getSubNbt(ZONE_DATA) == null) return;
+            assert stack.getSubNbt(ZONE_DATA) != null;
+
+            Zone stackSavedZone = Zone.fromNbt(stack.getSubNbt(ZONE_DATA));
+
+            ZoneSaveData.getZone(serverWorld, stackSavedZone.getZoneId()).ifPresent(savedZone -> {
+                if (savedZone.getLastUpdateTime() > stackSavedZone.getLastUpdateTime()) {
+                    stack.setSubNbt(ZONE_DATA, savedZone.asNbt());
+                    return;
+                }
+
+                if (isDirty(stack)) {
+                    savedZone.copyData(stackSavedZone);
+                    setDirty(stack, false);
+                }
+            });
+        }
+    }
+
+    @Override
+    public ActionResult useOnBlock(ItemUsageContext context) {
+        World world = context.getWorld();
+        BlockPos pos = context.getBlockPos();
+        ItemStack stack = context.getStack();
+
+        if (world instanceof ServerWorld serverWorld) {
+            Zone stackSavedZone = Zone.createFromNbt(serverWorld, stack.getSubNbt(ZONE_DATA));
+
+            boolean shouldContinue = true;
+            if (world.getBlockEntity(pos) instanceof ChestBlockEntity && context.getPlayer().isSneaking() && shouldContinue) {
+                if(stackSavedZone.getChests().contains(pos)) {
+                    stackSavedZone.removeInventoryBlock(pos);
+                } else {
+                    stackSavedZone.addInventoryBlock(pos);
+                }
+                shouldContinue = false;
+            }
+
+            if (shouldContinue && stackSavedZone.getCornerA().isPresent() && stackSavedZone.getCornerB().isPresent()) {
+                stackSavedZone.setCorners(world, pos, null);
+                shouldContinue = false;
+            }
+
+            if (shouldContinue && stackSavedZone.getCornerA().isEmpty()) {
+                stackSavedZone.setCornerA(world, pos);
+                shouldContinue = false;
+            }
+
+            if (shouldContinue && stackSavedZone.getCornerB().isEmpty()) {
+                stackSavedZone.setCornerB(world, pos);
+                shouldContinue = false;
+            }
+
+            if (!shouldContinue) {
+                setDirty(stack, true);
+                stackSavedZone.setLastUpdateTime(world.getTime());
+                stack.setSubNbt(ZONE_DATA, stackSavedZone.asNbt());
+
+                return ActionResult.SUCCESS;
+            }
+
+        }
+
+        return super.useOnBlock(context);
     }
 
     /* -------------------- Helpers -------------------- */
@@ -111,9 +188,9 @@ public class ZoneItem extends Item {
     }
 
     private static Optional<UUID> getZoneId(ItemStack stack) {
-        var nbt = stack.getNbt();
-        if(nbt == null) return Optional.empty();
-        return Optional.ofNullable(nbt.getUuid(ZONE_ID));
+        if (stack.getNbt() == null || stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).containsUuid(ZONE_ID))
+            return Optional.empty();
+        return Optional.ofNullable(stack.getSubNbt(ZONE_DATA).getUuid(ZONE_ID));
     }
 
     private static boolean isDirty(ItemStack stack) {
@@ -133,13 +210,20 @@ public class ZoneItem extends Item {
     }
 
     public static Optional<BlockPos> getCornerA(ItemStack stack) {
-        if(stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).contains("corner_a")) return Optional.empty();
+        if (stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).contains("corner_a"))
+            return Optional.empty();
         return Optional.of(BlockPos.fromLong(stack.getSubNbt(ZONE_DATA).getLong("corner_a")));
     }
 
     public static Optional<BlockPos> getCornerB(ItemStack stack) {
-        if(stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).contains("corner_b")) return Optional.empty();
+        if (stack.getSubNbt(ZONE_DATA) == null || !stack.getSubNbt(ZONE_DATA).contains("corner_b"))
+            return Optional.empty();
         return Optional.of(BlockPos.fromLong(stack.getSubNbt(ZONE_DATA).getLong("corner_b")));
+    }
+
+    public static List<BlockPos> getChests(ItemStack stack) {
+        if (stack.getSubNbt(ZONE_DATA) == null) return new ArrayList<>();
+        return Arrays.stream(stack.getSubNbt(ZONE_DATA).getLongArray("chests")).mapToObj(BlockPos::fromLong).toList();
     }
 
     @Override
@@ -159,7 +243,7 @@ public class ZoneItem extends Item {
             tooltip.add(Text.translatable("item.farming_fellas.zoning_map.to", blockPos.toShortString()));
         });
 
-        if(Screen.hasShiftDown()) {
+        if (Screen.hasShiftDown()) {
             getCornerA(stack).ifPresent(cornerA -> {
                 getCornerB(stack).ifPresent(cornerB -> {
                     int width = Math.abs(cornerA.getX() - cornerB.getX()) + 1;

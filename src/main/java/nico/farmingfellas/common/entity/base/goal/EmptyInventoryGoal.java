@@ -2,8 +2,6 @@ package nico.farmingfellas.common.entity.base.goal;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.ChestBlock;
-import net.minecraft.block.EnderChestBlock;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.ChestBlockEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.inventory.Inventory;
@@ -47,7 +45,7 @@ public class EmptyInventoryGoal extends Goal {
 
     @Override
     public void tick() {
-        if (!golem.getZone().get().isInZone(targetChest) && targetChest != null) {
+        if (targetChest != null) {
             this.targetChest = null;
             this.chestInventory = null;
             return;
@@ -198,32 +196,19 @@ public class EmptyInventoryGoal extends Goal {
         // Map of chest position -> squared distance
         Map<BlockPos, Double> chestDistances = new HashMap<>();
 
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -1; y <= 1; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    BlockPos pos = origin.add(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+        golem.getZone().ifPresent(zone -> {
+            zone.getChests().forEach(chest -> {
+                ChestBlockEntity be = (ChestBlockEntity) world.getBlockEntity(chest);
+                // Filter out full chests
+                if (!isChestFull(be)) {
+                    double distSq = origin.getSquaredDistance(
+                            chest.getX(), chest.getY(), chest.getZ()
+                    );
 
-                    if (!golem.isInZone(pos)) continue;
-
-                    if (state.getBlock() instanceof ChestBlock
-                            && !(state.getBlock() instanceof EnderChestBlock)) {
-
-                        BlockEntity be = world.getBlockEntity(pos);
-                        if (!(be instanceof ChestBlockEntity chestEntity)) continue;
-
-                        // Filter out full chests
-                        if (isChestFull(chestEntity)) continue;
-
-                        double distSq = origin.getSquaredDistance(
-                                pos.getX(), pos.getY(), pos.getZ()
-                        );
-
-                        chestDistances.put(pos, distSq);
-                    }
+                    chestDistances.put(chest, distSq);
                 }
-            }
-        }
+            });
+        });
 
         // Choose nearest chest
         return chestDistances.entrySet()

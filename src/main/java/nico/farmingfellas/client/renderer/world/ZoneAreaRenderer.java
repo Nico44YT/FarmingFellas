@@ -57,6 +57,20 @@ public class ZoneAreaRenderer {
         WorldRenderer.drawBox(context.matrixStack(), vc, box.offset(-camPos.x, -camPos.y, -camPos.z), rgb[0], rgb[1], rgb[2], Math.min(alpha, 1));
 
         highlightBlocks(holdingStack, pos, context);
+
+        VertexConsumer debugQuads = context.consumers().getBuffer(RenderLayer.getDebugQuads());
+        ZoneItem.getChests(holdingStack).forEach(chestPos -> {
+            drawSolidBox(
+                    context.matrixStack(),
+                    chestPos.toCenterPos().add(-camPos.x, -camPos.y, -camPos.z),
+                    debugQuads,
+                    0.49f,
+                    1,
+                    1,
+                    1,
+                    0.25f
+            );
+        });
     }
 
     public static boolean isZoneAreaCreated(ItemStack holdingStack) {
@@ -86,20 +100,21 @@ public class ZoneAreaRenderer {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     Vec3d offSetPos = new Vec3d((double) x - camPos.x, (double) y - camPos.y, (double) z - camPos.z);
-                    if(camPos.distanceTo(offSetPos.add(camPos)) > 10) continue;
+                    if (camPos.distanceTo(offSetPos.add(camPos)) > 10) continue;
 
                     float distance = (float) camPos.distanceTo(offSetPos.add(camPos));
 
                     float alpha = MathHelper.clamp((-distance / 7.5f) + 1, 0f, 1f);
 
-                    if(alpha <= Float.MIN_NORMAL) continue;
+                    if (alpha <= Float.MIN_NORMAL) continue;
 
                     drawSolidBox(
                             context.matrixStack(),
-                            offSetPos,
+                            offSetPos.add(0.5, 0.5, 0.5),
                             vc,
+                            0.25f,
                             rgb[0], rgb[1], rgb[2],
-                            alpha*0.25f
+                            alpha * 0.25f
                     );
                 }
             }
@@ -108,14 +123,14 @@ public class ZoneAreaRenderer {
     }
 
     private static final float[][] vertices = {
-            { 1,  1,  1}, // 0
-            {-1,  1,  1}, // 1
-            {-1, -1,  1}, // 2
-            { 1, -1,  1}, // 3
-            { 1,  1, -1}, // 4
-            {-1,  1, -1}, // 5
+            {1, 1, 1}, // 0
+            {-1, 1, 1}, // 1
+            {-1, -1, 1}, // 2
+            {1, -1, 1}, // 3
+            {1, 1, -1}, // 4
+            {-1, 1, -1}, // 5
             {-1, -1, -1}, // 6
-            { 1, -1, -1}, // 7
+            {1, -1, -1}, // 7
     };
 
     private static final int[][] quads = {
@@ -133,7 +148,7 @@ public class ZoneAreaRenderer {
             {3, 2, 6, 7},
     };
 
-    private static void drawSolidBox(MatrixStack matrices, Vec3d pos, VertexConsumer vc, float r, float g, float b, float a) {
+    private static void drawSolidBox(MatrixStack matrices, Vec3d pos, VertexConsumer vc, float scale, float r, float g, float b, float a) {
 
         MatrixStack.Entry entry = matrices.peek();
         Matrix4f mat = entry.getPositionMatrix();
@@ -141,9 +156,9 @@ public class ZoneAreaRenderer {
         for (int[] quad : quads) {
             for (int u : quad) {
                 vc.vertex(mat,
-                        (float) (vertices[u][0]*0.15f+0.5f + pos.x),
-                        (float) (vertices[u][1]*0.15f+0.5f + pos.y),
-                        (float) (vertices[u][2]*0.15f+0.5f + pos.z)
+                        (float) (vertices[u][0] * scale + pos.x),
+                        (float) (vertices[u][1] * scale + pos.y),
+                        (float) (vertices[u][2] * scale + pos.z)
                 ).color(r, g, b, a).next();
             }
         }

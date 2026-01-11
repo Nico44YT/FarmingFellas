@@ -1,13 +1,13 @@
 package nico.farmingfellas.common.zone;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class Zone {
@@ -19,8 +19,17 @@ public class Zone {
 
     private long lastUpdateTime;
 
+    private final Set<BlockPos> chests = new LinkedHashSet<>();
+
     public Zone(UUID zoneId) {
         this.zoneId = zoneId;
+    }
+
+    public static Zone createFromNbt(ServerWorld serverWorld, NbtCompound nbt) {
+        if(nbt == null) {
+            return ZoneSaveData.getOrCreateZone(serverWorld, UUID.randomUUID());
+        }
+        return fromNbt(nbt);
     }
 
     public void setCorners(@Nullable World world, BlockPos cornerA, BlockPos cornerB) {
@@ -76,6 +85,7 @@ public class Zone {
         if (cornerB != null) nbt.putLong("corner_b", cornerB.asLong());
         nbt.putLong("last_update_time", lastUpdateTime);
         nbt.putUuid("zone_id", zoneId);
+        nbt.putLongArray("chests", chests.stream().mapToLong(BlockPos::asLong).toArray());
 
         return nbt;
     }
@@ -85,6 +95,7 @@ public class Zone {
         if (nbt.contains("corner_a")) zone.setCornerA(null, BlockPos.fromLong(nbt.getLong("corner_a")));
         if (nbt.contains("corner_b")) zone.setCornerB(null, BlockPos.fromLong(nbt.getLong("corner_b")));
         zone.lastUpdateTime = nbt.getLong("last_update_time");
+        zone.chests.addAll(Arrays.stream(nbt.getLongArray("chests")).mapToObj(BlockPos::fromLong).toList());
 
         return zone;
     }
@@ -93,6 +104,9 @@ public class Zone {
         this.cornerA = otherZone.cornerA;
         this.cornerB = otherZone.cornerB;
         this.lastUpdateTime = otherZone.lastUpdateTime;
+
+        this.chests.clear();
+        this.chests.addAll(otherZone.chests);
     }
 
     public boolean isInZone(BlockPos pos) {
@@ -119,5 +133,17 @@ public class Zone {
                 }
             });
         });
+    }
+
+    public Set<BlockPos> getChests() {
+        return this.chests;
+    }
+
+    public void addInventoryBlock(BlockPos pos) {
+        this.chests.add(pos);
+    }
+
+    public void removeInventoryBlock(BlockPos pos) {
+        this.chests.remove(pos);
     }
 }
