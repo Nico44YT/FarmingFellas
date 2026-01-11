@@ -85,6 +85,7 @@ public class ZoneItem extends Item {
 
         UUID zoneId = getOrCreateZoneId(stack);
         Zone zone = ZoneSaveData.getOrCreateZone(serverWorld, zoneId);
+        zone.setLastUpdateTime(world.getTime());
 
         if (zone.getCornerB().isEmpty()) {
             zone.setCornerB(world, pos);

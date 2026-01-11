@@ -5,7 +5,6 @@ import net.minecraft.block.CropBlock;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
@@ -68,11 +67,11 @@ public abstract class HarvestCropGoal extends Goal {
 
         if (!isNearCrop()) return;
 
-        if(!harvest(golem, world, targetCrop, state)) return;
+        if (!harvest(golem, world, targetCrop, state)) return;
 
         collectNearbyItems();
 
-        if(!replant(golem, world, targetCrop, state)) return;
+        if (!replant(golem, world, targetCrop, state)) return;
 
         targetCrop = null;
     }
@@ -81,36 +80,32 @@ public abstract class HarvestCropGoal extends Goal {
         BlockPos origin = golem.getBlockPos();
         World world = golem.getWorld();
 
-        int radius = 5;
-
         // Map of crop position -> squared distance
         Map<BlockPos, Double> cropDistances = new HashMap<>();
 
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -1; y <= 1; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    BlockPos pos = origin.add(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+        golem.getZone().ifPresent(zone -> {
+            zone.forEach(blockPos -> {
+                BlockState state = world.getBlockState(blockPos);
 
-                    if(!golem.isInZone(pos)) continue;
-
-                    if (isValidCrop(world, pos, world.getBlockState(pos))) {
-
-                        if (!golem.hasFreeSlot() && state.getBlock() instanceof CropBlock crop) {
-                            if (golem.containsAny(stack -> stack.getItem().equals(crop.getSeedsItem()))) {
-                                continue;
-                            }
+                if (isValidCrop(world, blockPos, state)) {
+                    boolean canHarvest = false;
+                    if (!golem.hasFreeSlot() && state.getBlock() instanceof CropBlock crop) {
+                        if (golem.containsAny(stack -> stack.getItem().equals(crop.getSeedsItem()))) {
+                            canHarvest = true;
                         }
-
-                        double distSq = origin.getSquaredDistance(
-                                pos.getX(), pos.getY(), pos.getZ()
-                        );
-
-                        cropDistances.put(pos, distSq);
+                    } else {
+                        canHarvest = true;
                     }
+
+                    if (canHarvest) {
+                        double distSq = origin.getSquaredDistance(blockPos.getX(), blockPos.getY(), blockPos.getZ());
+
+                        cropDistances.put(blockPos, distSq);
+                    }
+
                 }
-            }
-        }
+            });
+        });
 
         // Choose nearest valid crop
         return cropDistances.entrySet()

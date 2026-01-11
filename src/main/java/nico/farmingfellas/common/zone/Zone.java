@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class Zone {
 
@@ -23,18 +24,18 @@ public class Zone {
     }
 
     public void setCorners(@Nullable World world, BlockPos cornerA, BlockPos cornerB) {
-        if(world != null) this.lastUpdateTime = world.getTime();
+        if (world != null) this.lastUpdateTime = world.getTime();
         this.cornerA = cornerA;
         this.cornerB = cornerB;
     }
 
     public void setCornerA(@Nullable World world, BlockPos cornerA) {
-        if(world != null) this.lastUpdateTime = world.getTime();
+        if (world != null) this.lastUpdateTime = world.getTime();
         this.cornerA = cornerA;
     }
 
     public void setCornerB(@Nullable World world, BlockPos cornerB) {
-        if(world != null) this.lastUpdateTime = world.getTime();
+        if (world != null) this.lastUpdateTime = world.getTime();
         this.cornerB = cornerB;
     }
 
@@ -95,8 +96,28 @@ public class Zone {
     }
 
     public boolean isInZone(BlockPos pos) {
-        if(this.cornerA == null || this.cornerB == null) return false;
-
+        if (this.cornerA == null || this.cornerB == null || pos == null) return false;
         return new Box(this.cornerA, this.cornerB).contains(pos.toCenterPos());
+    }
+
+    public void forEach(Consumer<BlockPos> consumer) {
+        getCornerA().ifPresent(a -> {
+            getCornerB().ifPresent(b -> {
+                int minX = Math.min(a.getX(), b.getX());
+                int minY = Math.min(a.getY(), b.getY());
+                int minZ = Math.min(a.getZ(), b.getZ());
+                int maxX = Math.max(a.getX(), b.getX());
+                int maxY = Math.max(a.getY(), b.getY());
+                int maxZ = Math.max(a.getZ(), b.getZ());
+
+                for (int x = minX; x <= maxX; x++) {
+                    for (int y = minY; y <= maxY; y++) {
+                        for (int z = minZ; z <= maxZ; z++) {
+                            consumer.accept(new BlockPos(x, y, z));
+                        }
+                    }
+                }
+            });
+        });
     }
 }

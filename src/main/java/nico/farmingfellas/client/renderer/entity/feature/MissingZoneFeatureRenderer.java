@@ -23,7 +23,7 @@ public class MissingZoneFeatureRenderer<T extends FellaGolemEntity & ZoneHolderE
 
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
-        if (entity.getZone().isEmpty() && entity.getState() != GolemAnimationState.GUI) {
+        if (!entity.hasZoneSet() && entity.getState() != GolemAnimationState.GUI) {
             VertexConsumer vc = vertexConsumers.getBuffer(RenderLayer.getDebugQuads());
             float[] rgb = FarmingFellasUtil.intToRgbFloat(0xFF_00_22);
 

@@ -48,7 +48,8 @@ public class FarmingFellaEntity extends FellaGolemEntity {
     public ItemStack getPickBlockStack() {
         ItemStack stack = ModItems.FARMING_GOLEM_ITEM.getDefaultStack();
         if (this.hasCustomName()) stack.setCustomName(this.getCustomName());
-        if(!this.getInventory().isEmpty()) Inventories.writeNbt(stack.getOrCreateSubNbt("Inventory"), this.getInventory().stacks);
+        if (!this.getInventory().isEmpty()) Inventories.writeNbt(stack.getOrCreateSubNbt("Inventory"), this.getInventory().stacks);
+        this.getZoneId().ifPresent(zoneId -> stack.getOrCreateNbt().putUuid("zone_id", zoneId));
         return stack;
     }
 

@@ -4,6 +4,7 @@
   "item.farming_fellas.blank_zoning_map": "Zoning Map",
   "entity.farming_fellas.farming_golem": "Farming Golem",
   "item.farming_fellas.golem_generic.has_inventory": "has inventory",
+  "item.farming_fellas.golem_generic.has_zone": "has zone",
 
   "item.farming_fellas.zoning_map.set_position": "Set pos %s to %s",
   "item.farming_fellas.zoning_map.assigned_position": "Zone assigned",

@@ -35,6 +35,10 @@ public class GolemItem extends Item {
         if(stack.getOrCreateNbt().contains("Inventory")) {
             tooltip.add(Text.translatable("item.farming_fellas.golem_generic.has_inventory").formatted(Formatting.DARK_PURPLE));
         }
+
+        if(stack.getOrCreateNbt().contains("zone_id")) {
+            tooltip.add(Text.translatable("item.farming_fellas.golem_generic.has_zone").formatted(Formatting.DARK_PURPLE));
+        }
     }
 
     @Override
@@ -55,6 +59,10 @@ public class GolemItem extends Item {
             if (stack.getOrCreateNbt().contains("Inventory")) {
                 assert stack.getNbt() != null;
                 Inventories.readNbt(stack.getOrCreateSubNbt("Inventory"), golem.getInventory().stacks);
+            }
+            if (stack.getOrCreateNbt().contains("zone_id")) {
+                assert stack.getNbt() != null;
+                golem.setZone(stack.getNbt().getUuid("zone_id"));
             }
             world.spawnEntity(golem);
             stack.decrement(1);

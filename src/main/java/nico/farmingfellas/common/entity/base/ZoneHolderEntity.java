@@ -11,8 +11,8 @@ import java.util.UUID;
 
 public interface ZoneHolderEntity {
     void setZone(UUID uuid);
-
     Optional<Zone> getZone();
+    boolean hasZoneSet();
 
     default void setZone(Zone zone) {
         setZone(zone.getZoneId());

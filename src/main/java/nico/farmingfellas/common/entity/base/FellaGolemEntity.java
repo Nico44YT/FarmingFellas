@@ -236,6 +236,16 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     public void setZone(UUID zoneId) {
         this.dataTracker.set(ZONE_ID, Optional.of(zoneId));
     }
+
+    @Override
+    public boolean hasZoneSet() {
+        return this.dataTracker.get(ZONE_ID).isPresent();
+    }
+
+    protected Optional<UUID> getZoneId() {
+        return this.dataTracker.get(ZONE_ID);
+    }
+
     //endregion
 
     //region // * Saving / Loading * //
@@ -245,6 +255,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
 
         nbt.put("inventory", this.inventory.toNbtList());
         nbt.putString("state", getState().asString());
+        getZone().ifPresent(zone -> nbt.putUuid("zone_id", zone.getZoneId()));
     }
 
     @Override
@@ -253,6 +264,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
 
         this.inventory.readNbtList(nbt.getList("inventory", NbtElement.COMPOUND_TYPE));
         this.setState(GolemAnimationState.valueOf(nbt.getString("state").toUpperCase()));
+        if(nbt.contains("zone_id")) this.setZone(nbt.getUuid("zone_id"));
     }
     //endregion
 

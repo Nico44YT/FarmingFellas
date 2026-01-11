@@ -153,30 +153,23 @@ public class PlantCropGoal extends Goal {
     private BlockPos findEmptyFarmland() {
         BlockPos origin = golem.getBlockPos();
         World world = golem.getWorld();
-        int radius = 6;
 
         // Map of crop position -> squared distance
         Map<BlockPos, Double> farmlandDistances = new HashMap<>();
 
-        for (int x = -radius; x <= radius; x++) {
-            for (int y = -1; y <= 1; y++) {
-                for (int z = -radius; z <= radius; z++) {
-                    BlockPos pos = origin.add(x, y, z);
-                    BlockState state = world.getBlockState(pos);
+        golem.getZone().ifPresent(zone -> {
+            zone.forEach(blockPos -> {
+                BlockState state = world.getBlockState(blockPos);
 
-                    if(!golem.isInZone(pos)) continue;
+                if (state.getBlock() instanceof AirBlock && world.getBlockState(blockPos.down()).getBlock() instanceof FarmlandBlock) {
+                    double distSq = origin.getSquaredDistance(
+                            blockPos.getX(), blockPos.getY(), blockPos.getZ()
+                    );
 
-                    // Sweet berry bushes
-                    if (state.getBlock() instanceof AirBlock && world.getBlockState(pos.down()).getBlock() instanceof FarmlandBlock) {
-                        double distSq = origin.getSquaredDistance(
-                                pos.getX(), pos.getY(), pos.getZ()
-                        );
-
-                        farmlandDistances.put(pos, distSq);
-                    }
+                    farmlandDistances.put(blockPos, distSq);
                 }
-            }
-        }
+            });
+        });
 
         // Choose nearest valid crop
         return farmlandDistances.entrySet()
