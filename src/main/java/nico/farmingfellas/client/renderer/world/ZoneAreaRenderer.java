@@ -16,6 +16,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import nico.farmingfellas.FarmingFellasUtil;
+import nico.farmingfellas.client.renderer.ModRenderLayers;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.common.item.ZoneItem;
 import org.joml.Matrix4f;
@@ -58,13 +59,13 @@ public class ZoneAreaRenderer {
 
         highlightBlocks(holdingStack, pos, context);
 
-        VertexConsumer debugQuads = context.consumers().getBuffer(RenderLayer.getDebugQuads());
+        VertexConsumer debugQuads = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
         ZoneItem.getChests(holdingStack).forEach(chestPos -> {
             drawSolidBox(
                     context.matrixStack(),
                     chestPos.toCenterPos().add(-camPos.x, -camPos.y, -camPos.z),
                     debugQuads,
-                    0.49f,
+                    0.51f,
                     1,
                     1,
                     1,
@@ -93,7 +94,7 @@ public class ZoneAreaRenderer {
         Camera camera = context.camera();
         Vec3d camPos = camera.getPos();
 
-        VertexConsumer vc = context.consumers().getBuffer(RenderLayer.getDebugQuads());
+        VertexConsumer vc = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
         float[] rgb = FarmingFellasUtil.intToRgbFloat(0xFF00FF);
 
         for (int x = minX; x <= maxX; x++) {
@@ -112,7 +113,7 @@ public class ZoneAreaRenderer {
                             context.matrixStack(),
                             offSetPos.add(0.5, 0.5, 0.5),
                             vc,
-                            0.25f,
+                            0.125f,
                             rgb[0], rgb[1], rgb[2],
                             alpha * 0.25f
                     );

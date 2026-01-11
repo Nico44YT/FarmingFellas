@@ -2,13 +2,31 @@ package nico.farmingfellas.client.renderer;
 
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.mixin.client.rendering.EntityModelLayersAccessor;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.client.renderer.entity.model.FarmingGolemModel;
 
-public class ModEntityLayers {
+public class ModRenderLayers {
 
     public static final EntityModelLayer FARMING_GOLEM_LAYER = registerMain("farming_golem");
+
+    public static final RenderLayer ZONE_OVERLAY_LAYER = RenderLayer.of(
+            FarmingFellasMain.id("zone_overlay").toString(),
+            VertexFormats.POSITION_COLOR,
+            VertexFormat.DrawMode.QUADS,
+            0x20000,
+            false,
+            true,
+            RenderLayer.MultiPhaseParameters.builder()
+                    .program(RenderLayer.COLOR_PROGRAM)
+                    .transparency(RenderLayer.TRANSLUCENT_TRANSPARENCY)
+                    .cull(RenderLayer.DISABLE_CULLING)
+                    .writeMaskState(RenderLayer.COLOR_MASK)
+                    .build(false)
+    );
 
     public static void register() {
         EntityModelLayerRegistry.registerModelLayer(FARMING_GOLEM_LAYER, FarmingGolemModel::getTexturedModelData);
