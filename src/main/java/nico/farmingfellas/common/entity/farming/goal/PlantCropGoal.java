@@ -164,7 +164,7 @@ public class PlantCropGoal extends Goal {
                     BlockPos pos = origin.add(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    if(!golem.isPositionAccessible(pos)) continue;
+                    if(!golem.isInZone(pos)) continue;
 
                     // Sweet berry bushes
                     if (state.getBlock() instanceof AirBlock && world.getBlockState(pos.down()).getBlock() instanceof FarmlandBlock) {

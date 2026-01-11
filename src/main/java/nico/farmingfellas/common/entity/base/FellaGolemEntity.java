@@ -3,6 +3,7 @@ package nico.farmingfellas.common.entity.base;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -35,6 +36,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
+import nico.farmingfellas.common.item.ZoneItem;
 import nico.farmingfellas.common.zone.Zone;
 import nico.farmingfellas.common.zone.ZoneSaveData;
 
@@ -132,6 +134,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         }
 
         if (player.isSneaking() && hand == Hand.MAIN_HAND) {
+            if(player.getStackInHand(hand).getItem() instanceof ZoneItem) return super.interactMob(player, hand);
             this.getPickedUp(player);
             return ActionResult.SUCCESS;
         }
@@ -154,6 +157,12 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     @Override
     public boolean isInZone(BlockPos targetPosition) {
         return false;
+    }
+
+    @Override
+    public ActionResult assignZone(Optional<UUID> optionalZoneId, ItemStack stack, PlayerEntity user) {
+        optionalZoneId.ifPresent(this::setZone);
+        return optionalZoneId.isPresent() ? ActionResult.SUCCESS : ActionResult.PASS;
     }
 
     //region // * Wait / Actions * //
@@ -201,11 +210,6 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     public void lookAt(Vec3d position) {
         this.getLookControl().lookAt(position);
     }
-
-    public boolean isPositionAccessible(BlockPos pos) {
-        if (pos == null) return false;
-        return true;
-    }
     //endregion
 
     //region // * Tracked Data * //
@@ -217,6 +221,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         return GolemAnimationState.valueOf(this.dataTracker.get(STATE).toUpperCase());
     }
 
+    @Override
     public Optional<Zone> getZone() {
         if(this.getWorld() instanceof ServerWorld serverWorld) {
             Optional<UUID> id = this.dataTracker.get(ZONE_ID);

@@ -2,6 +2,7 @@ package nico.farmingfellas.common.zone;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -91,5 +92,11 @@ public class Zone {
         this.cornerA = otherZone.cornerA;
         this.cornerB = otherZone.cornerB;
         this.lastUpdateTime = otherZone.lastUpdateTime;
+    }
+
+    public boolean isInZone(BlockPos pos) {
+        if(this.cornerA == null || this.cornerB == null) return false;
+
+        return new Box(this.cornerA, this.cornerB).contains(pos.toCenterPos());
     }
 }

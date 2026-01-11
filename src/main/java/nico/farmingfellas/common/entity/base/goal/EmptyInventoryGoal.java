@@ -47,7 +47,7 @@ public class EmptyInventoryGoal extends Goal {
 
     @Override
     public void tick() {
-        if (!golem.isPositionAccessible(targetChest) && targetChest != null) {
+        if (!golem.getZone().get().isInZone(targetChest) && targetChest != null) {
             this.targetChest = null;
             this.chestInventory = null;
             return;
@@ -204,7 +204,7 @@ public class EmptyInventoryGoal extends Goal {
                     BlockPos pos = origin.add(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    if (!golem.isPositionAccessible(pos)) continue;
+                    if (!golem.isInZone(pos)) continue;
 
                     if (state.getBlock() instanceof ChestBlock
                             && !(state.getBlock() instanceof EnderChestBlock)) {

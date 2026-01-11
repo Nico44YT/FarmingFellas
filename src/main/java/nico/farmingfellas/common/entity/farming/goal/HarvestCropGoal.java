@@ -92,7 +92,7 @@ public abstract class HarvestCropGoal extends Goal {
                     BlockPos pos = origin.add(x, y, z);
                     BlockState state = world.getBlockState(pos);
 
-                    if(!golem.isPositionAccessible(pos)) continue;
+                    if(!golem.isInZone(pos)) continue;
 
                     if (isValidCrop(world, pos, world.getBlockState(pos))) {
 

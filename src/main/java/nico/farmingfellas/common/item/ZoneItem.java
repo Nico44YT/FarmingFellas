@@ -1,19 +1,28 @@
 package nico.farmingfellas.common.item;
 
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import nico.farmingfellas.common.entity.base.ZoneHolderEntity;
 import nico.farmingfellas.common.zone.Zone;
 import nico.farmingfellas.common.zone.ZoneSaveData;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +35,12 @@ public class ZoneItem extends Item {
 
     public ZoneItem(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
+        if(entity instanceof ZoneHolderEntity zoneHolderEntity && user.isSneaking() && hand == Hand.MAIN_HAND) return zoneHolderEntity.assignZone(getZoneId(stack), stack, user);
+        return super.useOnEntity(stack, user, entity, hand);
     }
 
     @Override
@@ -94,6 +109,12 @@ public class ZoneItem extends Item {
         return nbt.getUuid(ZONE_ID);
     }
 
+    private static Optional<UUID> getZoneId(ItemStack stack) {
+        var nbt = stack.getNbt();
+        if(nbt == null) return Optional.empty();
+        return Optional.ofNullable(nbt.getUuid(ZONE_ID));
+    }
+
     private static boolean isDirty(ItemStack stack) {
         return stack.getOrCreateNbt().getBoolean(ZONE_DIRTY);
     }
@@ -123,5 +144,37 @@ public class ZoneItem extends Item {
     @Override
     public boolean allowNbtUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack) {
         return false;
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+
+        getCornerA(stack).ifPresent(blockPos -> {
+            tooltip.add(Text.translatable("item.farming_fellas.zoning_map.from", blockPos.toShortString()));
+        });
+
+        getCornerB(stack).ifPresent(blockPos -> {
+            tooltip.add(Text.translatable("item.farming_fellas.zoning_map.to", blockPos.toShortString()));
+        });
+
+        if(Screen.hasShiftDown()) {
+            getCornerA(stack).ifPresent(cornerA -> {
+                getCornerB(stack).ifPresent(cornerB -> {
+                    int width = Math.abs(cornerA.getX() - cornerB.getX()) + 1;
+                    int height = Math.abs(cornerA.getY() - cornerB.getY()) + 1;
+                    int length = Math.abs(cornerA.getZ() - cornerB.getZ()) + 1;
+                    int volume = width * height * length;
+
+                    tooltip.add(Text.translatable("item.farming_fellas.zoning_map.zone_area", volume));
+                });
+            });
+
+            getZoneId(stack).ifPresent(zoneId -> {
+                tooltip.add(Text.translatable("item.farming_fellas.zoning_map.zone_id", zoneId.toString()));
+            });
+        } else {
+            tooltip.add(Text.translatable("item.farming_fellas.zoning_map.more_info"));
+        }
     }
 }
