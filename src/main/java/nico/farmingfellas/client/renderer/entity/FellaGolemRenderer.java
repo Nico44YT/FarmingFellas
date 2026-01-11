@@ -14,7 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import nico.farmingfellas.FarmingFellasMain;
-import nico.farmingfellas.client.renderer.ZoningOverlayRenderer;
+import nico.farmingfellas.client.renderer.entity.feature.MissingZoneFeatureRenderer;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 
@@ -42,7 +42,8 @@ public class FellaGolemRenderer<E extends FellaGolemEntity, M extends EntityMode
                 super.renderItem(entity, stack, mode, arm, matrices, consumers, light);
             }
         });
-        this.addFeature(new ZoningOverlayRenderer<>(this));
+
+        this.addFeature(new MissingZoneFeatureRenderer<>(this, context));
     }
 
     @Override

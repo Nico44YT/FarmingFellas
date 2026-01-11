@@ -1,7 +1,5 @@
 package nico.farmingfellas.common.entity.base;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
@@ -30,29 +28,26 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
-import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-import nico.farmingfellas.common.data.Zone;
-import nico.farmingfellas.common.data.ZoneManager;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
-import org.jetbrains.annotations.Nullable;
+import nico.farmingfellas.common.item.ZoneItem;
+import nico.farmingfellas.common.zone.Zone;
+import nico.farmingfellas.common.zone.ZoneSaveData;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 
-public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory {
-    private static final TrackedData<Boolean> ARMS_IN_AIR = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-
-    private static final TrackedData<Integer> ZONE_ID = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.INTEGER);
+public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory, ZoneHolderEntity {
+    private static final TrackedData<String> STATE = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.STRING);
+    private static final TrackedData<Optional<UUID>> ZONE_ID = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
     private final SimpleInventory inventory;
-    private Box assignedZone;
 
     public float jumpingMultiplier = 1;
 
@@ -78,8 +73,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     protected void initDataTracker() {
         super.initDataTracker();
 
-        this.dataTracker.startTracking(ARMS_IN_AIR, false);
-        this.dataTracker.startTracking(ZONE_ID, -1);
+        this.dataTracker.startTracking(STATE, GolemAnimationState.IDLE.asString());
+        this.dataTracker.startTracking(ZONE_ID, Optional.empty());
     }
 
     @Override
@@ -95,7 +90,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.tick();
 
         if (getWorld() instanceof ServerWorld && getStackInHand(Hand.MAIN_HAND).isOf(Items.COOKIE)) {
-            this.setArmsInAir(false);
+            this.setState(GolemAnimationState.EATING_COOKIE);
 
             if (doActionAndWait(80, this, (cooldown) -> {
                 if (random.nextBetween(1, 100) < 20) {
@@ -119,7 +114,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
                 }
             })) return;
 
-            setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+            this.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+            this.setState(GolemAnimationState.IDLE);
         }
     }
 
@@ -131,12 +127,41 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
             return ActionResult.SUCCESS;
         }
 
-        if (player.isSneaking()) {
+        if (!player.isSneaking()) {
             this.open(player);
             return ActionResult.SUCCESS;
         }
 
+        if (player.isSneaking() && hand == Hand.MAIN_HAND) {
+            if(player.getStackInHand(hand).getItem() instanceof ZoneItem) return super.interactMob(player, hand);
+            this.getPickedUp(player);
+            return ActionResult.SUCCESS;
+        }
+
         return super.interactMob(player, hand);
+    }
+
+    private void getPickedUp(PlayerEntity player) {
+        ItemStack entityStack = this.getPickBlockStack();
+
+        if (player.getStackInHand(Hand.MAIN_HAND).isEmpty()) {
+            player.setStackInHand(Hand.MAIN_HAND, entityStack);
+        } else {
+            player.giveItemStack(entityStack);
+        }
+
+        this.discard();
+    }
+
+    @Override
+    public boolean isInZone(BlockPos targetPosition) {
+        return false;
+    }
+
+    @Override
+    public ActionResult assignZone(Optional<UUID> optionalZoneId, ItemStack stack, PlayerEntity user) {
+        optionalZoneId.ifPresent(this::setZone);
+        return optionalZoneId.isPresent() ? ActionResult.SUCCESS : ActionResult.PASS;
     }
 
     //region // * Wait / Actions * //
@@ -184,60 +209,42 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     public void lookAt(Vec3d position) {
         this.getLookControl().lookAt(position);
     }
-
-    public boolean isPositionAccessible(BlockPos pos) {
-        if(pos == null) return false;
-        if (!this.isZoneSet()) return true;
-        return this.getZoneBox().contains(pos.toCenterPos());
-    }
     //endregion
 
     //region // * Tracked Data * //
-
-    // Arms
-    public void setArmsInAir(boolean value) {
-        this.dataTracker.set(ARMS_IN_AIR, value);
+    public void setState(GolemAnimationState state) {
+        this.dataTracker.set(STATE, state.asString());
     }
 
-    public boolean getArmsInAir() {
-        return this.dataTracker.get(ARMS_IN_AIR);
+    public GolemAnimationState getState() {
+        return GolemAnimationState.valueOf(this.dataTracker.get(STATE).toUpperCase());
     }
 
-    // Zone
-    public boolean isZoneSet() {
-        return this.dataTracker.get(ZONE_ID) != -1;
-    }
+    @Override
+    public Optional<Zone> getZone() {
+        if(this.getWorld() instanceof ServerWorld serverWorld) {
+            Optional<UUID> id = this.dataTracker.get(ZONE_ID);
 
-    public void setZone(int zoneId) {
-        if(this.dataTracker.get(ZONE_ID) == zoneId || zoneId == -1) {
-            this.dataTracker.set(ZONE_ID, -1);
-            this.assignedZone = null;
-            return;
-        }
-        this.dataTracker.set(ZONE_ID, zoneId);
-
-        Zone zone = ZoneManager.getInstance().getZone(zoneId);
-        this.assignedZone = new Box(zone.getCornerA().toCenterPos(), zone.getCornerB().toCenterPos()).expand(0.5f);
-    }
-
-    public Optional<Pair<BlockPos, BlockPos>> getZoneCorners() {
-        if (isZoneSet()) {
-            int id = this.dataTracker.get(ZONE_ID);
-            Zone zone = ZoneManager.getInstance().getZone(id);
-
-            return Optional.of(new Pair<>(zone.getCornerA(), zone.getCornerB()));
+            return id.flatMap(value -> ZoneSaveData.getZone(serverWorld, value));
         }
 
         return Optional.empty();
     }
 
-    public int getZoneId() {
+    @Override
+    public void setZone(UUID zoneId) {
+        this.dataTracker.set(ZONE_ID, Optional.of(zoneId));
+    }
+
+    @Override
+    public boolean hasZoneSet() {
+        return this.dataTracker.get(ZONE_ID).isPresent();
+    }
+
+    protected Optional<UUID> getZoneId() {
         return this.dataTracker.get(ZONE_ID);
     }
 
-    public @Nullable Box getZoneBox() {
-        return this.assignedZone;
-    }
     //endregion
 
     //region // * Saving / Loading * //
@@ -246,8 +253,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.writeCustomDataToNbt(nbt);
 
         nbt.put("inventory", this.inventory.toNbtList());
-        nbt.putBoolean("arms_in_air", getArmsInAir());
-        nbt.putInt("zone_id", this.dataTracker.get(ZONE_ID));
+        nbt.putString("state", getState().asString());
+        getZone().ifPresent(zone -> nbt.putUuid("zone_id", zone.getZoneId()));
     }
 
     @Override
@@ -255,8 +262,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         super.readCustomDataFromNbt(nbt);
 
         this.inventory.readNbtList(nbt.getList("inventory", NbtElement.COMPOUND_TYPE));
-        this.setArmsInAir(nbt.getBoolean("arms_in_air"));
-        this.setZone(nbt.getInt("zone_id"));
+        this.setState(GolemAnimationState.valueOf(nbt.getString("state").toUpperCase()));
+        if(nbt.contains("zone_id")) this.setZone(nbt.getUuid("zone_id"));
     }
     //endregion
 
@@ -418,6 +425,10 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
         // 3. Return leftovers
         return remainder;
     }
+
+    public SimpleInventory getInventory() {
+        return this.inventory;
+    }
     //endregion
 
     //region // * Dropping * //
@@ -425,6 +436,7 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     protected void dropLoot(DamageSource damageSource, boolean causedByPlayer) {
         this.spawnItemStack(this.getPickBlockStack());
         this.inventory.stacks.forEach(this::spawnItemStack);
+        this.inventory.clear();
     }
 
     private void spawnItemStack(ItemStack stack) {
@@ -449,17 +461,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     //endregion
 
     //region // * Rendering * //
-    @Environment(EnvType.CLIENT)
-    private boolean inGui = false;
-
-    @Environment(EnvType.CLIENT)
-    public void setInGui(boolean inGui) {
-        this.inGui = inGui;
-    }
-
-    @Environment(EnvType.CLIENT)
     public boolean isInGui() {
-        return inGui;
+        return this.getState() == GolemAnimationState.GUI;
     }
     //endregion
 

@@ -12,11 +12,8 @@ import net.minecraft.text.Text;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.entity.ModEntities;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
-import nico.farmingfellas.common.item.zoning.ZoningMapItem;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -24,7 +21,7 @@ public class ModItems {
     public static Set<Item> items = new HashSet<>();
     public static final RegistryKey<ItemGroup> ITEM_GROUP = RegistryKey.of(RegistryKeys.ITEM_GROUP, FarmingFellasMain.id("item_group"));
 
-    public static final Item BLANK_ZONING_MAP = register("blank_zoning_map", new Item.Settings().maxCount(1), ZoningMapItem::new);
+    public static final Item BLANK_ZONING_MAP = register("blank_zoning_map", new Item.Settings().maxCount(1), ZoneItem::new);
 
     public static final Item FARMING_GOLEM_ITEM = register("farming_golem", new Item.Settings(), $ -> new GolemItem($, world -> new FarmingFellaEntity(ModEntities.FARMING_GOLEM, world)));
 

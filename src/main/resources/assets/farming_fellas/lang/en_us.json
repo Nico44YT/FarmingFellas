@@ -3,11 +3,16 @@
 
   "item.farming_fellas.blank_zoning_map": "Zoning Map",
   "entity.farming_fellas.farming_golem": "Farming Golem",
+  "item.farming_fellas.golem_generic.has_inventory": "has inventory",
+  "item.farming_fellas.golem_generic.has_zone": "has zone",
 
   "item.farming_fellas.zoning_map.set_position": "Set pos %s to %s",
   "item.farming_fellas.zoning_map.assigned_position": "Zone assigned",
   "item.farming_fellas.zoning_map.clear": "Zone cleared",
   "item.farming_fellas.zoning_map.zone_copy": "Zone copied from golem",
   "item.farming_fellas.zoning_map.from": "§7From: %s",
-  "item.farming_fellas.zoning_map.to": "§7To: %s"
+  "item.farming_fellas.zoning_map.to": "§7To: %s",
+  "item.farming_fellas.zoning_map.zone_id": "§7Zone: %s",
+  "item.farming_fellas.zoning_map.zone_area": "§7Area: %s blocks",
+  "item.farming_fellas.zoning_map.more_info": "§7§o(Shift to view more info)"
 }

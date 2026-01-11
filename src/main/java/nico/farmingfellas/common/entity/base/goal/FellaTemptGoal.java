@@ -6,6 +6,7 @@ import net.minecraft.item.Items;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.util.Hand;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 
 public class FellaTemptGoal extends TemptGoal {
 
@@ -32,7 +33,7 @@ public class FellaTemptGoal extends TemptGoal {
         super.stop();
 
         this.golem.jumpingMultiplier = 1f;
-        this.golem.setArmsInAir(false);
+        this.golem.setState(GolemAnimationState.IDLE);
     }
 
     @Override
@@ -41,12 +42,12 @@ public class FellaTemptGoal extends TemptGoal {
         if (this.mob.squaredDistanceTo(this.closestPlayer) < 4.25) {
             this.mob.getJumpControl().setActive();
             this.golem.jumpingMultiplier = 0.5f;
-            this.golem.setArmsInAir(true);
+            this.golem.setState(GolemAnimationState.BEGGING_COOKIE);
             this.mob.getNavigation().stop();
         } else {
             this.mob.getNavigation().startMovingTo(this.closestPlayer, this.speed);
             this.golem.jumpingMultiplier = 1f;
-            this.golem.setArmsInAir(false);
+            this.golem.setState(GolemAnimationState.IDLE);
         }
     }
 }

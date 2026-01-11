@@ -1,17 +1,21 @@
 package nico.farmingfellas.common.item;
 
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.function.Function;
 
 public class GolemItem extends Item {
@@ -22,6 +26,19 @@ public class GolemItem extends Item {
         super(settings);
 
         this.factory = factory;
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+
+        if(stack.getOrCreateNbt().contains("Inventory")) {
+            tooltip.add(Text.translatable("item.farming_fellas.golem_generic.has_inventory").formatted(Formatting.DARK_PURPLE));
+        }
+
+        if(stack.getOrCreateNbt().contains("zone_id")) {
+            tooltip.add(Text.translatable("item.farming_fellas.golem_generic.has_zone").formatted(Formatting.DARK_PURPLE));
+        }
     }
 
     @Override
@@ -39,6 +56,14 @@ public class GolemItem extends Item {
             golem.setPosition(hitResult.getPos());
 
             if (stack.hasCustomName()) golem.setCustomName(stack.getName());
+            if (stack.getOrCreateNbt().contains("Inventory")) {
+                assert stack.getNbt() != null;
+                Inventories.readNbt(stack.getOrCreateSubNbt("Inventory"), golem.getInventory().stacks);
+            }
+            if (stack.getOrCreateNbt().contains("zone_id")) {
+                assert stack.getNbt() != null;
+                golem.setZone(stack.getNbt().getUuid("zone_id"));
+            }
             world.spawnEntity(golem);
             stack.decrement(1);
             context.getPlayer().swingHand(context.getHand());
