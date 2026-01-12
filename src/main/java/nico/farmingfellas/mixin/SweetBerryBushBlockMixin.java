@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(SweetBerryBushBlock.class)
 public abstract class SweetBerryBushBlockMixin {
     @Inject(method = "onEntityCollision", at = @At("HEAD"), cancellable = true)
-    public void dark_arts$onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
+    public void farming_fellas$onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, CallbackInfo ci) {
         if(entity instanceof FellaGolemEntity) ci.cancel();
     }
 }
