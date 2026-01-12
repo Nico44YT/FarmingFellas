@@ -11,9 +11,9 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
-import nico.farmingfellas.common.entity.farming.goal.HarvestCropGoal;
+import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 
-public class CocoaBeansHarvestGoal extends HarvestCropGoal {
+public class CocoaBeansHarvestGoal extends HarvestCropGoal<FarmingFellaEntity> {
     public CocoaBeansHarvestGoal(FarmingFellaEntity golem) {
         super(golem);
     }

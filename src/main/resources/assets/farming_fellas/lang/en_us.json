@@ -3,6 +3,7 @@
 
   "item.farming_fellas.blank_zoning_map": "Zoning Map",
   "entity.farming_fellas.farming_golem": "Farming Golem",
+  "entity.farming_fellas.lumberjack_golem": "Lumberjack Golem",
   "item.farming_fellas.golem_generic.has_inventory": "has inventory",
   "item.farming_fellas.golem_generic.has_zone": "has zone",
 

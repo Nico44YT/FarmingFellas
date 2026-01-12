@@ -8,9 +8,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
-import nico.farmingfellas.common.entity.farming.goal.HarvestCropGoal;
+import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 
-public class StemBlockHarvestGoal extends HarvestCropGoal {
+public class StemBlockHarvestGoal extends HarvestCropGoal<FarmingFellaEntity> {
     public StemBlockHarvestGoal(FarmingFellaEntity golem) {
         super(golem);
     }

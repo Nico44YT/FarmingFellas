@@ -6,15 +6,14 @@ import net.minecraft.block.CropBlock;
 import net.minecraft.block.FarmlandBlock;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
-import nico.farmingfellas.common.entity.farming.goal.HarvestCropGoal;
+import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 
-public class CropBlockHarvestGoal extends HarvestCropGoal {
+public class CropBlockHarvestGoal extends HarvestCropGoal<FarmingFellaEntity> {
     public CropBlockHarvestGoal(FarmingFellaEntity golem) {
         super(golem);
     }

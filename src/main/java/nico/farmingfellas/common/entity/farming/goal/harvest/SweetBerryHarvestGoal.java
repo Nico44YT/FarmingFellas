@@ -11,9 +11,9 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
-import nico.farmingfellas.common.entity.farming.goal.HarvestCropGoal;
+import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 
-public class SweetBerryHarvestGoal extends HarvestCropGoal {
+public class SweetBerryHarvestGoal extends HarvestCropGoal<FarmingFellaEntity> {
     public SweetBerryHarvestGoal(FarmingFellaEntity golem) {
         super(golem);
     }

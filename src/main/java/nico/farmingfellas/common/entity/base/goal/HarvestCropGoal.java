@@ -1,4 +1,4 @@
-package nico.farmingfellas.common.entity.farming.goal;
+package nico.farmingfellas.common.entity.base.goal;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.CropBlock;
@@ -8,18 +8,18 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
-import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
+import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class HarvestCropGoal extends Goal {
-    private final FarmingFellaEntity golem;
+public abstract class HarvestCropGoal<T extends FellaGolemEntity> extends Goal {
+    private final T golem;
     private BlockPos targetCrop;
 
-    public HarvestCropGoal(FarmingFellaEntity golem) {
+    public HarvestCropGoal(T golem) {
         this.golem = golem;
         this.setControls(EnumSet.of(Control.MOVE, Control.LOOK));
     }
@@ -144,7 +144,7 @@ public abstract class HarvestCropGoal extends Goal {
 
     public abstract boolean isValidCrop(World world, BlockPos pos, BlockState state);
 
-    public abstract boolean harvest(FarmingFellaEntity golem, World world, BlockPos pos, BlockState state);
+    public abstract boolean harvest(T golem, World world, BlockPos pos, BlockState state);
 
-    public abstract boolean replant(FarmingFellaEntity golem, World world, BlockPos pos, BlockState state);
+    public abstract boolean replant(T golem, World world, BlockPos pos, BlockState state);
 }
