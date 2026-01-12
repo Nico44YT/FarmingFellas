@@ -8,10 +8,12 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.client.renderer.entity.model.FarmingGolemModel;
+import nico.farmingfellas.client.renderer.entity.model.LumberjackGolemModel;
 
 public class ModRenderLayers {
 
     public static final EntityModelLayer FARMING_GOLEM_LAYER = registerMain("farming_golem");
+    public static final EntityModelLayer LUMBERJACK_GOLEM_LAYER = registerMain("lumberjack_golem");
 
     public static final RenderLayer ZONE_OVERLAY_LAYER = RenderLayer.of(
             FarmingFellasMain.id("zone_overlay").toString(),
@@ -30,6 +32,7 @@ public class ModRenderLayers {
 
     public static void register() {
         EntityModelLayerRegistry.registerModelLayer(FARMING_GOLEM_LAYER, FarmingGolemModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(LUMBERJACK_GOLEM_LAYER, LumberjackGolemModel::getTexturedModelData);
     }
 
     private static EntityModelLayer registerMain(String id) {

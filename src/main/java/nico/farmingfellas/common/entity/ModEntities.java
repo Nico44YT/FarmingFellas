@@ -2,12 +2,16 @@ package nico.farmingfellas.common.entity;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.*;
+import net.minecraft.entity.EntityDimensions;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnGroup;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
+import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +22,7 @@ public class ModEntities {
     private static Map<EntityType<? extends LivingEntity>, Supplier<DefaultAttributeContainer.Builder>> ATTRIBUTES = new HashMap<>();
 
     public static final EntityType<FarmingFellaEntity> FARMING_GOLEM = register("farming_golem", FarmingFellaEntity::new, FarmingFellaEntity::createGolemAttributes);
-
+    public static final EntityType<LumberjackFellaEntity> LUMBERJACK_GOLEM = register("lumberjack_golem", LumberjackFellaEntity::new, LumberjackFellaEntity::createGolemAttributes);
 
     public static void register() {
         ModEntities.ATTRIBUTES.forEach((entityType, builderSupplier) -> FabricDefaultAttributeRegistry.register(entityType, builderSupplier.get()));
