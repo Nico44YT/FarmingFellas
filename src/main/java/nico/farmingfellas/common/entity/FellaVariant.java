@@ -4,6 +4,7 @@ import net.minecraft.util.StringIdentifiable;
 
 public enum FellaVariant implements StringIdentifiable {
     FARMER("farmer"),
+    MINER("miner"),
     LUMBERJACK("lumberjack"),
     FISHER("fisher");
 

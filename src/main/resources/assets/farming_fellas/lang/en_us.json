@@ -2,8 +2,11 @@
   "itemGroup.farming_fellas.name": "Farming Fellas",
 
   "item.farming_fellas.blank_zoning_map": "Zoning Map",
+
   "entity.farming_fellas.farming_golem": "Farming Golem",
   "entity.farming_fellas.lumberjack_golem": "Lumberjack Golem",
+  "entity.farming_fellas.mining_golem": "Mining Golem",
+
   "item.farming_fellas.golem_generic.has_inventory": "has inventory",
   "item.farming_fellas.golem_generic.has_zone": "has zone",
 

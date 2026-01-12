@@ -13,6 +13,7 @@ import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.entity.ModEntities;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
+import nico.farmingfellas.common.entity.mining.MiningFellaEntity;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -26,6 +27,7 @@ public class ModItems {
 
     public static final Item FARMING_GOLEM_ITEM = register("farming_golem", new Item.Settings(), $ -> new GolemItem($, world -> new FarmingFellaEntity(ModEntities.FARMING_GOLEM, world)));
     public static final Item LUMBERJACK_GOLEM_ITEM = register("lumberjack_golem", new Item.Settings(), $ -> new GolemItem($, world -> new LumberjackFellaEntity(ModEntities.LUMBERJACK_GOLEM, world)));
+    public static final Item MINING_GOLEM_ITEM = register("mining_golem", new Item.Settings(), $ -> new GolemItem($, world -> new MiningFellaEntity(ModEntities.MINING_GOLEM, world)));
 
     public static void register() {
         Registry.register(Registries.ITEM_GROUP, ITEM_GROUP.getValue(), FabricItemGroup.builder()

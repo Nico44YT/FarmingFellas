@@ -1,4 +1,4 @@
-package nico.farmingfellas.common.entity.lumberjack;
+package nico.farmingfellas.common.entity.mining;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.PathAwareEntity;
@@ -13,14 +13,13 @@ import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.goal.EmptyInventoryGoal;
-import nico.farmingfellas.common.entity.farming.goal.harvest.CropBlockHarvestGoal;
 import nico.farmingfellas.common.entity.lumberjack.goal.harvest.TreeHarvestGoal;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.screen.custom.Generic3x2ContainerScreenHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class LumberjackFellaEntity extends FellaGolemEntity {
-    public LumberjackFellaEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
+public class MiningFellaEntity extends FellaGolemEntity {
+    public MiningFellaEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
         super(entityType, world, 6);
     }
 
@@ -28,7 +27,6 @@ public class LumberjackFellaEntity extends FellaGolemEntity {
     protected void initGoals() {
         super.initGoals();
 
-        this.goalSelector.add(1, new TreeHarvestGoal(this));
         this.goalSelector.add(2, new EmptyInventoryGoal(this));
     }
 
@@ -44,7 +42,7 @@ public class LumberjackFellaEntity extends FellaGolemEntity {
 
     @Override
     public ItemStack getPickBlockStack() {
-        ItemStack stack = ModItems.LUMBERJACK_GOLEM_ITEM.getDefaultStack();
+        ItemStack stack = ModItems.MINING_GOLEM_ITEM.getDefaultStack();
         if (this.hasCustomName()) stack.setCustomName(this.getCustomName());
         if (!this.getInventory().isEmpty())
             Inventories.writeNbt(stack.getOrCreateSubNbt("Inventory"), this.getInventory().stacks);
@@ -54,6 +52,6 @@ public class LumberjackFellaEntity extends FellaGolemEntity {
 
     @Override
     public FellaVariant getVariant() {
-        return FellaVariant.LUMBERJACK;
+        return FellaVariant.MINER;
     }
 }
