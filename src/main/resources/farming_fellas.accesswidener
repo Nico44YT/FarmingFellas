@@ -9,3 +9,7 @@ accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters
 accessible field net/minecraft/block/entity/ChestBlockEntity stateManager Lnet/minecraft/block/entity/ViewerCountManager;
 accessible field net/minecraft/block/entity/ViewerCountManager viewerCount I
 accessible method net/minecraft/block/entity/ViewerCountManager onContainerOpen (Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V
+
+accessible field net/minecraft/util/math/Direction HORIZONTAL [Lnet/minecraft/util/math/Direction; # WHY?!
+accessible field net/minecraft/util/math/Direction VALUES [Lnet/minecraft/util/math/Direction; # WHY?!
+accessible field net/minecraft/util/math/Direction ALL [Lnet/minecraft/util/math/Direction; # WHY?!

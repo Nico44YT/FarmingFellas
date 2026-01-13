@@ -28,7 +28,6 @@ public class PlantCropGoal extends Goal {
         this.setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
     }
 
-
     @Override
     public boolean shouldContinue() {
         return findEmptyFarmland() != null;
@@ -42,7 +41,6 @@ public class PlantCropGoal extends Goal {
 
         if (pos != null) {
             tryPlantEmptyFarmland(pos);
-
         }
     }
 
@@ -147,7 +145,7 @@ public class PlantCropGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        return !golem.hasCookie();
+        return !golem.hasCookie() && findEmptyFarmland() != null;
     }
 
     private BlockPos findEmptyFarmland() {
