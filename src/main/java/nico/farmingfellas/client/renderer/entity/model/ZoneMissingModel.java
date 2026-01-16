@@ -6,10 +6,10 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 
-public class NoZoneWarningModel extends EntityModel<Entity> {
+public class ZoneMissingModel extends EntityModel<Entity> {
     private final ModelPart main;
 
-    public NoZoneWarningModel(ModelPart root) {
+    public ZoneMissingModel(ModelPart root) {
         this.main = root.getChild("main");
     }
 

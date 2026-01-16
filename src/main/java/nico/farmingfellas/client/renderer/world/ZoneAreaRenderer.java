@@ -125,7 +125,23 @@ public class ZoneAreaRenderer {
                 }
             }
         }
+        var aCenter = a.toCenterPos();
+        var bCenter = b.toCenterPos();
 
+        Vec3d centerPos = new Vec3d(
+                (aCenter.getX() + bCenter.getX()) / 2d,
+                (aCenter.getY() + bCenter.getY()) / 2d,
+                (aCenter.getZ() + bCenter.getZ()) / 2d
+        );
+
+        drawSolidBox(matrixStack,
+                centerPos.subtract(camPos),
+                vc,
+                ((float) (Math.abs(b.getX() - a.getX())) * 0.5f) + 0.51f,
+                ((float) (Math.abs(b.getY() - a.getY())) * 0.5f) + 0.51f,
+                ((float) (Math.abs(b.getZ() - a.getZ())) * 0.5f) + 0.51f,
+                1, 1, 1, 0.15f
+        );
     }
 
     private static final float[][] vertices = {
@@ -155,6 +171,10 @@ public class ZoneAreaRenderer {
     };
 
     private static void drawSolidBox(MatrixStack matrices, Vec3d pos, VertexConsumer vc, float scale, float r, float g, float b, float a) {
+        drawSolidBox(matrices, pos, vc, scale, scale, scale, r, g, b, a);
+    }
+
+    private static void drawSolidBox(MatrixStack matrices, Vec3d pos, VertexConsumer vc, float scaleX, float scaleY, float scaleZ, float r, float g, float b, float a) {
 
         MatrixStack.Entry entry = matrices.peek();
         Matrix4f mat = entry.getPositionMatrix();
@@ -162,9 +182,9 @@ public class ZoneAreaRenderer {
         for (int[] quad : quads) {
             for (int u : quad) {
                 vc.vertex(mat,
-                        (float) (vertices[u][0] * scale + pos.x),
-                        (float) (vertices[u][1] * scale + pos.y),
-                        (float) (vertices[u][2] * scale + pos.z)
+                        (float) (vertices[u][0] * scaleX + pos.x),
+                        (float) (vertices[u][1] * scaleY + pos.y),
+                        (float) (vertices[u][2] * scaleZ + pos.z)
                 ).color(r, g, b, a).next();
             }
         }
