@@ -12,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
 import nico.farmingfellas.common.entity.farming.goal.harvest.CropBlockHarvestGoal;
 
@@ -40,6 +41,7 @@ public class PlantCropGoal extends Goal {
         BlockPos pos = findEmptyFarmland();
 
         if (pos != null) {
+            golem.setState(GolemAnimationState.WORKING);
             tryPlantEmptyFarmland(pos);
         }
     }
@@ -126,6 +128,7 @@ public class PlantCropGoal extends Goal {
         );
 
         seeds.decrement(1);
+        golem.setState(GolemAnimationState.IDLE);
     }
 
     private CropBlock findAnyPlantableCropFromInventory() {

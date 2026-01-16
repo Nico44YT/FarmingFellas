@@ -61,6 +61,7 @@ public abstract class AbstractGolemModel<T extends FellaGolemEntity> extends Ent
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+        GolemAnimationState state = entity.getState();
         // Head rotation
         this.head.pitch = headPitch * ((float) Math.PI / 180F);
         this.head.yaw = headYaw * ((float) Math.PI / 180F);
@@ -72,16 +73,44 @@ public abstract class AbstractGolemModel<T extends FellaGolemEntity> extends Ent
         this.right_leg.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
         this.left_leg.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
 
-        if (entity.getState() == GolemAnimationState.BEGGING_COOKIE) {
-            this.right_arm.pitch = -150 * ((float) Math.PI / 180F);
-            this.left_arm.pitch = -150 * ((float) Math.PI / 180F);
-            return;
-        } else if (entity.getState() == GolemAnimationState.EATING_COOKIE) {
-            this.right_arm.pitch = (-45f + (float) Math.sin(entity.age) * 15) * ((float) Math.PI / 180F);
-            this.right_arm.yaw = -22.5f * ((float) Math.PI / 180F);
-            this.left_arm.pitch = 0;
-            this.left_arm.yaw = 0;
-            return;
+        switch (state) {
+            case GUI -> {
+                this.head.pitch = 0;
+                this.head.yaw = 0;
+                return;
+            }
+            case BEGGING_COOKIE -> {
+                this.right_arm.pitch = -150 * ((float) Math.PI / 180F);
+                this.left_arm.pitch = -150 * ((float) Math.PI / 180F);
+                return;
+            }
+            case EATING_COOKIE -> {
+                this.right_arm.pitch = (-45f + (float) Math.sin(entity.age) * 15) * ((float) Math.PI / 180F);
+                this.right_arm.yaw = -22.5f * ((float) Math.PI / 180F);
+                this.left_arm.pitch = 0;
+                this.left_arm.yaw = 0;
+                return;
+            }
+            case WORKING -> {
+                float time = entity.age * 1.15f; // slower, smoother loop
+
+                float workSwing = MathHelper.sin(time);
+                float counterSwing = MathHelper.sin(time + (float)Math.PI);
+
+                // Pitch: alternating work motion
+                this.right_arm.pitch = (float) Math.toRadians(-35f + workSwing * 30f);
+                this.left_arm.pitch  = (float) Math.toRadians(-35f + counterSwing * 20f);
+
+                // Yaw: slight inward/outward motion
+                this.right_arm.yaw = (float) Math.toRadians(10f + workSwing * 10f);
+                this.left_arm.yaw  = (float) Math.toRadians(-10f - counterSwing * 10f);
+
+                // Roll: subtle twist adds life
+                this.right_arm.roll = (float) Math.toRadians(workSwing * 8f);
+                this.left_arm.roll  = (float) Math.toRadians(-counterSwing * 8f);
+
+                return;
+            }
         }
 
         this.right_arm.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
@@ -89,11 +118,6 @@ public abstract class AbstractGolemModel<T extends FellaGolemEntity> extends Ent
 
         this.right_arm.yaw = 0;
         this.left_arm.yaw = 0;
-
-        if (entity.isInGui()) {
-            this.head.pitch = 0;
-            this.head.yaw = 0;
-        }
     }
 
     @Override

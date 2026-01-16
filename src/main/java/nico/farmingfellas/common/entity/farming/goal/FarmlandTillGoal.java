@@ -15,6 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
 
 import java.util.EnumSet;
@@ -42,6 +43,7 @@ public class FarmlandTillGoal extends Goal {
         BlockPos pos = findSuitableBlock();
 
         if (pos != null) {
+            golem.setState(GolemAnimationState.WORKING);
             tryTillingDirt(pos);
         }
     }
@@ -77,7 +79,7 @@ public class FarmlandTillGoal extends Goal {
                 Block.NOTIFY_ALL
         );
 
-
+        golem.setState(GolemAnimationState.IDLE);
     }
 
     @Override

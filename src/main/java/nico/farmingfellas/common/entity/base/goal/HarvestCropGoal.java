@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -67,6 +68,7 @@ public abstract class HarvestCropGoal<T extends FellaGolemEntity> extends Goal {
 
         if (!isNearCrop()) return;
 
+        golem.setState(GolemAnimationState.WORKING);
         if (!harvest(golem, world, targetCrop, state)) return;
 
         collectNearbyItems();
@@ -74,6 +76,7 @@ public abstract class HarvestCropGoal<T extends FellaGolemEntity> extends Goal {
         if (!replant(golem, world, targetCrop, state)) return;
 
         targetCrop = null;
+        golem.setState(GolemAnimationState.IDLE);
     }
 
     protected BlockPos findHarvestableCrop() {
