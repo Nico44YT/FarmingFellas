@@ -10,8 +10,11 @@ import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.client.renderer.entity.model.FarmingGolemModel;
 import nico.farmingfellas.client.renderer.entity.model.LumberjackGolemModel;
 import nico.farmingfellas.client.renderer.entity.model.MiningGolemModel;
+import nico.farmingfellas.client.renderer.entity.model.NoZoneWarningModel;
 
 public class ModRenderLayers {
+
+    public static final EntityModelLayer NO_ZONE_WARNING_LAYER = registerMain("no_zone_warning");
 
     public static final EntityModelLayer FARMING_GOLEM_LAYER = registerMain("farming_golem");
     public static final EntityModelLayer LUMBERJACK_GOLEM_LAYER = registerMain("lumberjack_golem");
@@ -36,6 +39,8 @@ public class ModRenderLayers {
         EntityModelLayerRegistry.registerModelLayer(FARMING_GOLEM_LAYER, FarmingGolemModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(LUMBERJACK_GOLEM_LAYER, LumberjackGolemModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MINING_GOLEM_LAYER, MiningGolemModel::getTexturedModelData);
+
+        EntityModelLayerRegistry.registerModelLayer(NO_ZONE_WARNING_LAYER, NoZoneWarningModel::getTexturedModelData);
     }
 
     private static EntityModelLayer registerMain(String id) {

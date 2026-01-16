@@ -7,47 +7,51 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
+import net.minecraft.client.render.entity.model.EntityModelLayers;
+import net.minecraft.client.render.entity.model.ModelWithArms;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
+import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.FarmingFellasUtil;
+import nico.farmingfellas.client.renderer.ModRenderLayers;
+import nico.farmingfellas.client.renderer.entity.FellaGolemRenderer;
+import nico.farmingfellas.client.renderer.entity.model.NoZoneWarningModel;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.entity.base.ZoneHolderEntity;
 import org.joml.Matrix4f;
 
 public class MissingZoneFeatureRenderer<T extends FellaGolemEntity & ZoneHolderEntity, M extends EntityModel<T>> extends FeatureRenderer<T, M> {
-    public MissingZoneFeatureRenderer(FeatureRendererContext<T, M> context, EntityRendererFactory.Context rendererFactoryContext) {
+    private static NoZoneWarningModel WARNING_MODEL;
+
+    public MissingZoneFeatureRenderer(FeatureRendererContext<T, M> context, EntityRendererFactory.Context rendererFactoryContext, M model) {
         super(context);
+
+        if(WARNING_MODEL == null) {
+            WARNING_MODEL = new NoZoneWarningModel(rendererFactoryContext.getPart(ModRenderLayers.NO_ZONE_WARNING_LAYER));
+        }
     }
 
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch) {
         if (!entity.hasZoneSet() && entity.getState() != GolemAnimationState.GUI) {
-            VertexConsumer vc = vertexConsumers.getBuffer(RenderLayer.getDebugQuads());
-            float[] rgb = FarmingFellasUtil.intToRgbFloat(0xFF_00_22);
-
             matrices.push();
             float yaw = MathHelper.lerp(tickDelta, entity.prevBodyYaw, entity.bodyYaw);
 
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-yaw));
 
             float time = entity.age + tickDelta;
-            float bob = MathHelper.sin(time / 25.0f);
+            float bob = MathHelper.sin(time / 15.0f);
 
             matrices.translate(
                     0.0,
-                    entity.getHeight() / 2.0 - ((bob + 1.0f) / 10.0f),
+                    entity.getHeight() / 2.0 - ((bob + 1.0f) / 20f) - 1.75,
                     0.0
             );
 
-            matrices.scale(0.05f, 0.05f, 0.05f);
-            matrices.translate(0, -3, 0);
-            drawSolidBox(matrices, vc, 1f, rgb[0], rgb[1], rgb[2], 1);
-
-            matrices.translate(0.0, -6, 0.0);
-            matrices.scale(1, 3, 1);
-            drawSolidBox(matrices, vc, 1f, rgb[0], rgb[1], rgb[2], 1);
+            WARNING_MODEL.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntityCutout(getTexture(entity))), light, 0, 1, 1, 1, 1);
             matrices.pop();
         }
     }
@@ -91,5 +95,10 @@ public class MissingZoneFeatureRenderer<T extends FellaGolemEntity & ZoneHolderE
                 ).color(r, g, b, a).next();
             }
         }
+    }
+
+    @Override
+    protected Identifier getTexture(T entity) {
+        return FarmingFellasMain.id("textures/entity/no_zone_warning.png");
     }
 }

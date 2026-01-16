@@ -43,7 +43,7 @@ public class FellaGolemRenderer<E extends FellaGolemEntity, M extends EntityMode
             }
         });
 
-        this.addFeature(new MissingZoneFeatureRenderer<>(this, context));
+        this.addFeature(new MissingZoneFeatureRenderer<>(this, context, model));
     }
 
     @Override

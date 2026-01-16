@@ -37,7 +37,7 @@ processResources {
     String timeHex = Long.toHexString(System.currentTimeMillis() / 10_000 as long);
     timeHex = String.format("%8s", timeHex).replace(' ', '0');
 
-    project.version = timeHex + "-" + (String)project.minecraft_version;
+    project.version = timeHex + "-" + (String)project.minecraft_version + "-alpha";
 
 
     inputs.property "version", project.version
