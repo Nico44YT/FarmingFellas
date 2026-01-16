@@ -24,6 +24,9 @@ import org.joml.Matrix4f;
 public class ZoneAreaRenderer {
 
     public static void renderZone(WorldRenderContext context) {
+        MatrixStack matrix = context.matrixStack();
+        matrix.push();
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || client.world == null) return;
 
@@ -55,14 +58,14 @@ public class ZoneAreaRenderer {
         VertexConsumer vc = context.consumers().getBuffer(RenderLayer.getLines());
         float alpha = 0.5f + (float) ((Math.sin(client.player.age / 8f) + 1.0) / 2.0);
 
-        WorldRenderer.drawBox(context.matrixStack(), vc, box.offset(-camPos.x, -camPos.y, -camPos.z), rgb[0], rgb[1], rgb[2], Math.min(alpha, 1));
+        WorldRenderer.drawBox(matrix, vc, box.offset(-camPos.x, -camPos.y, -camPos.z), rgb[0], rgb[1], rgb[2], Math.min(alpha, 1));
 
-        highlightBlocks(holdingStack, pos, context);
+        highlightBlocks(holdingStack, pos, matrix, context);
 
         VertexConsumer debugQuads = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
         ZoneItem.getChests(holdingStack).forEach(chestPos -> {
             drawSolidBox(
-                    context.matrixStack(),
+                    matrix,
                     chestPos.toCenterPos().add(-camPos.x, -camPos.y, -camPos.z),
                     debugQuads,
                     0.51f,
@@ -72,6 +75,8 @@ public class ZoneAreaRenderer {
                     0.25f
             );
         });
+
+        matrix.pop();
     }
 
     public static boolean isZoneAreaCreated(ItemStack holdingStack) {
@@ -80,7 +85,7 @@ public class ZoneAreaRenderer {
         return a.isPresent() || b.isPresent();
     }
 
-    public static void highlightBlocks(ItemStack holdingStack, BlockPos pos, WorldRenderContext context) {
+    public static void highlightBlocks(ItemStack holdingStack, BlockPos pos, MatrixStack matrixStack, WorldRenderContext context) {
         BlockPos a = ZoneItem.getCornerA(holdingStack).orElse(pos);
         BlockPos b = ZoneItem.getCornerB(holdingStack).orElse(pos);
 
@@ -110,10 +115,10 @@ public class ZoneAreaRenderer {
                     if (alpha <= Float.MIN_NORMAL) continue;
 
                     drawSolidBox(
-                            context.matrixStack(),
+                            matrixStack,
                             offSetPos.add(0.5, 0.5, 0.5),
                             vc,
-                            0.125f,
+                            0.126f,
                             rgb[0], rgb[1], rgb[2],
                             alpha * 0.25f
                     );

@@ -34,6 +34,12 @@ dependencies {
 }
 
 processResources {
+    String timeHex = Long.toHexString(System.currentTimeMillis() / 10_000 as long);
+    timeHex = String.format("%8s", timeHex).replace(' ', '0');
+
+    project.version = timeHex + "-" + (String)project.minecraft_version;
+
+
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
     inputs.property "loader_version", project.loader_version

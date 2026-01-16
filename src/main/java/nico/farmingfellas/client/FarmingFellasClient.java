@@ -30,7 +30,7 @@ public class FarmingFellasClient implements ClientModInitializer {
 
         HandledScreens.register(ModHandledScreens.GENERIC_3X2, Generic3x2ContainerScreen::new);
 
-        WorldRenderEvents.AFTER_TRANSLUCENT.register(ZoneAreaRenderer::renderZone);
+        WorldRenderEvents.LAST.register(ZoneAreaRenderer::renderZone);
 
         golemItemRenderer = new GolemItemRenderer(MinecraftClient.getInstance(), null, null, null, null);
     }
