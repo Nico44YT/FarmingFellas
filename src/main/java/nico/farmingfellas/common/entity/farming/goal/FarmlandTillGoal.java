@@ -43,7 +43,6 @@ public class FarmlandTillGoal extends Goal {
         BlockPos pos = findSuitableBlock();
 
         if (pos != null) {
-            golem.setState(GolemAnimationState.WORKING);
             tryTillingDirt(pos);
         }
     }
@@ -61,6 +60,7 @@ public class FarmlandTillGoal extends Goal {
             return;
         }
 
+        golem.setState(GolemAnimationState.WORKING);
         golem.setStackInHand(Hand.MAIN_HAND, Items.IRON_HOE.getDefaultStack());
 
         if (FellaGolemEntity.spawnBlockParticlesAndWait(30, golem, pos, pos.up(), (cooldown) -> {

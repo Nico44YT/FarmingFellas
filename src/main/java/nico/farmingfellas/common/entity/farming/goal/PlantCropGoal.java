@@ -41,7 +41,6 @@ public class PlantCropGoal extends Goal {
         BlockPos pos = findEmptyFarmland();
 
         if (pos != null) {
-            golem.setState(GolemAnimationState.WORKING);
             tryPlantEmptyFarmland(pos);
         }
     }
@@ -109,6 +108,7 @@ public class PlantCropGoal extends Goal {
             return;
         }
 
+        golem.setState(GolemAnimationState.WORKING);
         golem.setStackInHand(Hand.MAIN_HAND, seeds);
 
         if (FellaGolemEntity.spawnBlockParticlesAndWait(20, golem, pos.down(), pos, (cooldown) -> {

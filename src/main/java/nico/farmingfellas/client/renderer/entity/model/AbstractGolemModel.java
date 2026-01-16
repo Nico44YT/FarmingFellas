@@ -10,6 +10,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.GolemAnimationState;
 
@@ -61,6 +62,13 @@ public abstract class AbstractGolemModel<T extends FellaGolemEntity> extends Ent
 
     @Override
     public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch) {
+        this.head.resetTransform();
+        this.body.resetTransform();
+        this.right_arm.resetTransform();
+        this.left_arm.resetTransform();
+        this.right_leg.resetTransform();
+        this.left_leg.resetTransform();
+
         GolemAnimationState state = entity.getState();
         // Head rotation
         this.head.pitch = headPitch * ((float) Math.PI / 180F);
@@ -73,51 +81,77 @@ public abstract class AbstractGolemModel<T extends FellaGolemEntity> extends Ent
         this.right_leg.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
         this.left_leg.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
 
+        this.right_arm.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
+        this.left_arm.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
+
+        this.right_arm.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
+        this.left_arm.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
+
+        this.right_arm.roll = (MathHelper.cos(entity.age / 15f) + 1f) / 16f;
+        this.left_arm.roll = -(MathHelper.cos(entity.age / 15f) + 1f) / 16f;
+
         switch (state) {
             case GUI -> {
                 this.head.pitch = 0;
                 this.head.yaw = 0;
-                return;
             }
             case BEGGING_COOKIE -> {
                 this.right_arm.pitch = -150 * ((float) Math.PI / 180F);
                 this.left_arm.pitch = -150 * ((float) Math.PI / 180F);
-                return;
             }
             case EATING_COOKIE -> {
                 this.right_arm.pitch = (-45f + (float) Math.sin(entity.age) * 15) * ((float) Math.PI / 180F);
                 this.right_arm.yaw = -22.5f * ((float) Math.PI / 180F);
                 this.left_arm.pitch = 0;
                 this.left_arm.yaw = 0;
-                return;
             }
             case WORKING -> {
                 float time = entity.age * 1.15f; // slower, smoother loop
 
                 float workSwing = MathHelper.sin(time);
-                float counterSwing = MathHelper.sin(time + (float)Math.PI);
+                float counterSwing = MathHelper.sin(time + (float) Math.PI);
 
                 // Pitch: alternating work motion
                 this.right_arm.pitch = (float) Math.toRadians(-35f + workSwing * 30f);
-                this.left_arm.pitch  = (float) Math.toRadians(-35f + counterSwing * 20f);
 
                 // Yaw: slight inward/outward motion
                 this.right_arm.yaw = (float) Math.toRadians(10f + workSwing * 10f);
-                this.left_arm.yaw  = (float) Math.toRadians(-10f - counterSwing * 10f);
 
                 // Roll: subtle twist adds life
-                this.right_arm.roll = (float) Math.toRadians(workSwing * 8f);
-                this.left_arm.roll  = (float) Math.toRadians(-counterSwing * 8f);
+                this.right_arm.roll = (float) Math.toRadians(-workSwing * 8f);
+            }
+            case IDLE -> {
+                if(entity.getVelocity().squaredDistanceTo(Vec3d.ZERO) > 0) break;
+                this.right_leg.pitch = (float)Math.toRadians(-90);
+                this.left_leg.pitch = (float)Math.toRadians(-90);
 
-                return;
+                this.right_leg.yaw = (float)Math.toRadians(12.5);
+                this.left_leg.yaw = (float)Math.toRadians(-12.5);
+
+                this.right_leg.pivotX -= 0.5f;
+                this.left_leg.pivotX += 0.5f;
+
+                this.right_leg.pivotZ -= 1.75f;
+                this.left_leg.pivotZ -= 1.75f;
+
+                this.right_leg.pivotY += 2f;
+                this.left_leg.pivotY += 2f;
+                this.body.pivotY += 3f;
+                this.head.pivotY += 3f;
+
+                this.right_arm.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
+                this.left_arm.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
+
+                this.right_arm.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
+                this.left_arm.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
+
+                this.right_arm.roll = (MathHelper.cos(entity.age / 15f) + 1f) / 16f;
+                this.left_arm.roll = -(MathHelper.cos(entity.age / 15f) + 1f) / 16f;
+            }
+            default -> {
+
             }
         }
-
-        this.right_arm.pitch = MathHelper.cos(limbAngle * walkSpeed + (float) Math.PI) * walkDegree * limbDistance;
-        this.left_arm.pitch = MathHelper.cos(limbAngle * walkSpeed) * walkDegree * limbDistance;
-
-        this.right_arm.yaw = 0;
-        this.left_arm.yaw = 0;
     }
 
     @Override

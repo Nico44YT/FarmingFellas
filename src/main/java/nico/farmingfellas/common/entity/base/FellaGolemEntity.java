@@ -3,6 +3,7 @@ package nico.farmingfellas.common.entity.base;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
+import net.minecraft.entity.ai.goal.LookAtEntityGoal;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -83,6 +84,8 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
 
         this.goalSelector.add(0, new SwimGoal(this));
         this.goalSelector.add(1, new FellaTemptGoal(this, 2));
+
+        this.goalSelector.add(8, new LookAtEntityGoal(this, PlayerEntity.class, 8.0F));
     }
 
     @Override
