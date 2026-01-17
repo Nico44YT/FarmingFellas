@@ -23,6 +23,9 @@ import org.joml.Matrix4f;
 
 public class ZoneAreaRenderer {
 
+    private static Vec3d smoothA = null;
+    private static Vec3d smoothB = null;
+
     public static void renderZone(WorldRenderContext context) {
         MatrixStack matrix = context.matrixStack();
         matrix.push();
@@ -46,10 +49,22 @@ public class ZoneAreaRenderer {
         }
 
         final BlockPos pos = resultPos;
-        Vec3d pos1 = ZoneItem.getCornerA(holdingStack).orElseGet(() -> pos).toCenterPos();
-        Vec3d pos2 = ZoneItem.getCornerB(holdingStack).orElseGet(() -> pos).toCenterPos();
+        Vec3d targetA = ZoneItem.getCornerA(holdingStack).orElseGet(() -> pos).toCenterPos();
+        Vec3d targetB = ZoneItem.getCornerB(holdingStack).orElseGet(() -> pos).toCenterPos();
 
-        Box box = new Box(pos1, pos2).expand(0.51f);
+        if (smoothA == null || smoothB == null) {
+            smoothA = targetA;
+            smoothB = targetB;
+        }
+
+        float tickDelta = context.tickDelta();
+        float speed = 0.05f; // smaller = smoother, larger = snappier
+
+        smoothA = lerp(smoothA, targetA, speed * tickDelta * 20f);
+        smoothB = lerp(smoothB, targetB, speed * tickDelta * 20f);
+
+        Box box = new Box(smoothA, smoothB).expand(0.51f);
+
 
         float[] rgb = FarmingFellasUtil.intToRgbFloat(0xFF00FF);
 
@@ -62,12 +77,12 @@ public class ZoneAreaRenderer {
 
         highlightBlocks(holdingStack, pos, matrix, context);
 
-        VertexConsumer debugQuads = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
+        VertexConsumer chestHighlightVC = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
         ZoneItem.getChests(holdingStack).forEach(chestPos -> {
             drawSolidBox(
                     matrix,
                     chestPos.toCenterPos().add(-camPos.x, -camPos.y, -camPos.z),
-                    debugQuads,
+                    chestHighlightVC,
                     0.51f,
                     1,
                     1,
@@ -75,6 +90,21 @@ public class ZoneAreaRenderer {
                     0.25f
             );
         });
+
+        Vec3d centerPos = new Vec3d(
+                (smoothA.getX() + smoothB.getX()) / 2d,
+                (smoothA.getY() + smoothB.getY()) / 2d,
+                (smoothA.getZ() + smoothB.getZ()) / 2d
+        );
+
+        drawSolidBox(matrix,
+                centerPos.subtract(camPos),
+                vc,
+                ((float) (Math.abs(smoothB.getX() - smoothA.getX())) * 0.5f) + 0.51f,
+                ((float) (Math.abs(smoothB.getY() - smoothA.getY())) * 0.5f) + 0.51f,
+                ((float) (Math.abs(smoothB.getZ() - smoothA.getZ())) * 0.5f) + 0.51f,
+                1, 1, 1, 0.15f
+        );
 
         matrix.pop();
     }
@@ -125,23 +155,6 @@ public class ZoneAreaRenderer {
                 }
             }
         }
-        var aCenter = a.toCenterPos();
-        var bCenter = b.toCenterPos();
-
-        Vec3d centerPos = new Vec3d(
-                (aCenter.getX() + bCenter.getX()) / 2d,
-                (aCenter.getY() + bCenter.getY()) / 2d,
-                (aCenter.getZ() + bCenter.getZ()) / 2d
-        );
-
-        drawSolidBox(matrixStack,
-                centerPos.subtract(camPos),
-                vc,
-                ((float) (Math.abs(b.getX() - a.getX())) * 0.5f) + 0.51f,
-                ((float) (Math.abs(b.getY() - a.getY())) * 0.5f) + 0.51f,
-                ((float) (Math.abs(b.getZ() - a.getZ())) * 0.5f) + 0.51f,
-                1, 1, 1, 0.15f
-        );
     }
 
     private static final float[][] vertices = {
@@ -188,5 +201,9 @@ public class ZoneAreaRenderer {
                 ).color(r, g, b, a).next();
             }
         }
+    }
+
+    private static Vec3d lerp(Vec3d from, Vec3d to, float t) {
+        return from.add(to.subtract(from).multiply(t));
     }
 }

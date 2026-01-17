@@ -3,6 +3,7 @@ package nico.farmingfellas.common.entity.lumberjack.goal.harvest;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.SaplingBlock;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -108,7 +109,7 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
             return true;
         }
 
-        ItemStack saplingStack = findSapling(golem, state.getBlock());
+        ItemStack saplingStack = findSapling(golem);
         if (saplingStack == null) return true;
 
         Block sapling = ((BlockItem) saplingStack.getItem()).getBlock();
@@ -118,30 +119,15 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
         return true;
     }
 
-    private static ItemStack findSapling(Inventory inv, Block logBlock) {
-        Block sapling = getSaplingForLog(logBlock);
-        if (sapling == null) return null;
-
+    private static ItemStack findSapling(Inventory inv) {
         for (int i = 0; i < inv.size(); i++) {
             ItemStack stack = inv.getStack(i);
             if (stack.isEmpty()) continue;
 
-            if (stack.getItem() instanceof BlockItem bi && bi.getBlock() == sapling) {
+            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof SaplingBlock) {
                 return stack;
             }
         }
-        return null;
-    }
-
-    private static Block getSaplingForLog(Block log) {
-        if (log == Blocks.OAK_LOG) return Blocks.OAK_SAPLING;
-        if (log == Blocks.SPRUCE_LOG) return Blocks.SPRUCE_SAPLING;
-        if (log == Blocks.BIRCH_LOG) return Blocks.BIRCH_SAPLING;
-        if (log == Blocks.JUNGLE_LOG) return Blocks.JUNGLE_SAPLING;
-        if (log == Blocks.ACACIA_LOG) return Blocks.ACACIA_SAPLING;
-        if (log == Blocks.DARK_OAK_LOG) return Blocks.DARK_OAK_SAPLING;
-        if (log == Blocks.MANGROVE_LOG) return Blocks.MANGROVE_PROPAGULE;
-        if (log == Blocks.CHERRY_LOG) return Blocks.CHERRY_SAPLING;
         return null;
     }
 }
