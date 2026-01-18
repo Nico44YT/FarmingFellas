@@ -36,7 +36,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.goal.FellaTemptGoal;
-import nico.farmingfellas.common.item.ZoneItem;
+import nico.farmingfellas.common.item.custom.ZoneItem;
 import nico.farmingfellas.common.zone.Zone;
 import nico.farmingfellas.common.zone.ZoneSaveData;
 

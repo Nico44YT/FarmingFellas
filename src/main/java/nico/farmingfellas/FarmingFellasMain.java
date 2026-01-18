@@ -2,8 +2,10 @@ package nico.farmingfellas;
 
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.util.Identifier;
+import nico.farmingfellas.common.block.ModBlocks;
 import nico.farmingfellas.common.entity.ModEntities;
 import nico.farmingfellas.common.item.ModItems;
+import nico.farmingfellas.common.world.ModGamerules;
 import nico.farmingfellas.screen.ModHandledScreens;
 
 public class FarmingFellasMain implements ModInitializer {
@@ -12,8 +14,10 @@ public class FarmingFellasMain implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ModGamerules.register();
         ModEntities.register();
         ModItems.register();
+        ModBlocks.register();
 
         ModHandledScreens.register();
     }

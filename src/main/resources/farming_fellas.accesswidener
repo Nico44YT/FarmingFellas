@@ -2,6 +2,7 @@ accessWidener v2 named
 
 accessible field net/minecraft/entity/ai/goal/TemptGoal speed D
 accessible method net/minecraft/block/CropBlock getSeedsItem ()Lnet/minecraft/item/ItemConvertible;
+accessible method net/minecraft/block/FarmlandBlock hasCrop (Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)Z
 accessible method net/minecraft/util/WorldSavePath <init> (Ljava/lang/String;)V
 
 accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters

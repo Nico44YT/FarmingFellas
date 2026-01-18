@@ -18,7 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import nico.farmingfellas.FarmingFellasUtil;
 import nico.farmingfellas.client.renderer.ModRenderLayers;
 import nico.farmingfellas.common.item.ModItems;
-import nico.farmingfellas.common.item.ZoneItem;
+import nico.farmingfellas.common.item.custom.ZoneItem;
 import org.joml.Matrix4f;
 
 public class ZoneAreaRenderer {

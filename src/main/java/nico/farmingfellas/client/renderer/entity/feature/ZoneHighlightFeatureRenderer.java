@@ -10,13 +10,10 @@ import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.passive.GolemEntity;
 import net.minecraft.util.Hand;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
-import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.entity.base.ZoneHolderEntity;
-import nico.farmingfellas.common.item.ZoneItem;
-import nico.farmingfellas.common.zone.Zone;
+import nico.farmingfellas.common.item.custom.ZoneItem;
 
 import java.util.Optional;
 import java.util.UUID;

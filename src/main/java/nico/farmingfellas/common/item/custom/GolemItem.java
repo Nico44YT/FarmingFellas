@@ -1,4 +1,4 @@
-package nico.farmingfellas.common.item;
+package nico.farmingfellas.common.item.custom;
 
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;

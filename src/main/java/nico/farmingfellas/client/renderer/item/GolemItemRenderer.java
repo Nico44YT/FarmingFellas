@@ -15,7 +15,7 @@ import net.minecraft.util.math.RotationAxis;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.GolemAnimationState;
-import nico.farmingfellas.common.item.GolemItem;
+import nico.farmingfellas.common.item.custom.GolemItem;
 import org.jetbrains.annotations.Nullable;
 
 public class GolemItemRenderer extends ItemRenderer {
