@@ -26,8 +26,8 @@ import java.util.*;
 public class ZoneItem extends Item {
 
     private static final String ZONE_LAST_UPDATE_TIME = "last_update_time";
-    private static final String ZONE_ID = "zone_id";
-    private static final String ZONE_DATA = "zone_data";
+    public static final String ZONE_ID = "zone_id";
+    public static final String ZONE_DATA = "zone_data";
     private static final String ZONE_DIRTY = "zone_dirty";
 
     public ZoneItem(Settings settings) {

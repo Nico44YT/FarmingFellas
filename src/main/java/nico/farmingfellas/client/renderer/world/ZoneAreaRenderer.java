@@ -58,7 +58,7 @@ public class ZoneAreaRenderer {
         }
 
         float tickDelta = context.tickDelta();
-        float speed = 0.05f; // smaller = smoother, larger = snappier
+        float speed = 0.025f;
 
         smoothA = lerp(smoothA, targetA, speed * tickDelta * 20f);
         smoothB = lerp(smoothB, targetB, speed * tickDelta * 20f);

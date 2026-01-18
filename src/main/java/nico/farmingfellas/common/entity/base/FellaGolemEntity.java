@@ -46,7 +46,7 @@ import java.util.function.Consumer;
 
 public abstract class FellaGolemEntity extends PathAwareEntity implements Inventory, NamedScreenHandlerFactory, ZoneHolderEntity {
     private static final TrackedData<String> STATE = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.STRING);
-    private static final TrackedData<Optional<UUID>> ZONE_ID = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+    public static final TrackedData<Optional<UUID>> ZONE_ID = DataTracker.registerData(FellaGolemEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 
     private final SimpleInventory inventory;
 

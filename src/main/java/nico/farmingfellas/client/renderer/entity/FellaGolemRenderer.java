@@ -15,6 +15,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.client.renderer.entity.feature.MissingZoneFeatureRenderer;
+import nico.farmingfellas.client.renderer.entity.feature.ZoneHighlightFeatureRenderer;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 
@@ -44,6 +45,7 @@ public class FellaGolemRenderer<E extends FellaGolemEntity, M extends EntityMode
         });
 
         this.addFeature(new MissingZoneFeatureRenderer<>(this, context, model));
+        this.addFeature(new ZoneHighlightFeatureRenderer<>(this, context, model));
     }
 
     @Override
