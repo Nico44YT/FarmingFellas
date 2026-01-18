@@ -17,10 +17,17 @@ public class FertilizedFarmlandBlock extends FarmlandBlock {
         super.randomTick(state, world, pos, random);
 
         var aboveState = world.getBlockState(pos.up());
-        if (hasCrop(world, pos) && aboveState.getBlock() instanceof CropBlock crop) crop.randomTick(aboveState, world, pos, random);
+        if (hasCrop(world, pos) && aboveState.getBlock() instanceof CropBlock crop) {
+            crop.applyGrowth(world, pos.up(), aboveState);
 
-        if (random.nextBetween(1, 20) == 1) {
-            world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, state.get(FarmlandBlock.MOISTURE)));
+            if (random.nextBetween(1, 25) == 1) {
+                world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, state.get(FarmlandBlock.MOISTURE)));
+            }
         }
+    }
+
+    @Override
+    public boolean hasRandomTicks(BlockState state) {
+        return true;
     }
 }
