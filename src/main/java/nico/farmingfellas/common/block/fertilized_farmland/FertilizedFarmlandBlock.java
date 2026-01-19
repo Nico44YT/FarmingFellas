@@ -18,7 +18,7 @@ public class FertilizedFarmlandBlock extends FarmlandBlock {
 
         var aboveState = world.getBlockState(pos.up());
         if (hasCrop(world, pos) && aboveState.getBlock() instanceof CropBlock crop) {
-            crop.applyGrowth(world, pos.up(), aboveState);
+            crop.randomTick(aboveState, world, pos.up(), random);
 
             if (random.nextBetween(1, 25) == 1) {
                 world.setBlockState(pos, Blocks.FARMLAND.getDefaultState().with(FarmlandBlock.MOISTURE, state.get(FarmlandBlock.MOISTURE)));
