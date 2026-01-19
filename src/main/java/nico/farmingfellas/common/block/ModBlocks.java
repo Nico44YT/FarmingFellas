@@ -12,8 +12,8 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.block.fertilized_farmland.FertilizedFarmlandBlock;
-import nico.farmingfellas.common.block.fertilizer.FertilizerHolderBlock;
-import nico.farmingfellas.common.block.fertilizer.FertilizerHolderBlockEntity;
+import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlock;
+import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlockEntity;
 import nico.farmingfellas.common.item.ModItems;
 
 import java.util.function.Function;

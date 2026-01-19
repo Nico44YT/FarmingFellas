@@ -16,13 +16,14 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.ZoneHolderEntity;
+import nico.farmingfellas.common.item.SimpleItemModel;
 import nico.farmingfellas.common.zone.Zone;
 import nico.farmingfellas.common.zone.ZoneSaveData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public class ZoneItem extends Item {
+public class ZoneItem extends Item implements SimpleItemModel {
 
     private static final String ZONE_LAST_UPDATE_TIME = "last_update_time";
     public static final String ZONE_ID = "zone_id";

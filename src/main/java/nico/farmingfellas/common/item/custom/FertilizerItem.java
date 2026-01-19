@@ -7,14 +7,15 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.block.ModBlocks;
 import nico.farmingfellas.common.block.fertilized_farmland.FertilizedFarmlandBlock;
-import nico.farmingfellas.common.block.fertilizer.FertilizerHolderBlock;
-import nico.farmingfellas.common.block.fertilizer.FertilizerHolderBlockEntity;
+import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlock;
+import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlockEntity;
 
 public class FertilizerItem extends Item {
     public FertilizerItem(Settings settings) {
@@ -35,10 +36,17 @@ public class FertilizerItem extends Item {
 
         if (state.getBlock() instanceof FertilizerHolderBlock) {
             FertilizerHolderBlockEntity holder = (FertilizerHolderBlockEntity) world.getBlockEntity(pos);
-            int decrements = holder.tryFillHolder(player.isSneaking() ? stack.getCount() : 1);
-            stack.decrement(decrements);
+            if (world instanceof ServerWorld) {
+                int decrements = holder.tryFillHolder(player.isSneaking() ? stack.getCount() : 1);
+                if (decrements == 0) return ActionResult.PASS;
+                stack.decrement(decrements);
 
-            return ActionResult.SUCCESS;
+                player.swingHand(context.getHand());
+
+                return ActionResult.SUCCESS;
+            }
+
+            return ActionResult.PASS;
         }
 
         if (state.getBlock() instanceof FarmlandBlock && !(state.getBlock() instanceof FertilizedFarmlandBlock)) {

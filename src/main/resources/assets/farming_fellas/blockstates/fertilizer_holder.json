@@ -1,0 +1,19 @@
+{
+  "multipart": [
+    {
+      "apply": { "model": "farming_fellas:block/fertilizer_holder_0" }
+    },
+    {
+      "when": { "level": "1" },
+      "apply": { "model": "farming_fellas:block/fertilizer_holder_1" }
+    },
+    {
+      "when": { "level": "2" },
+      "apply": { "model": "farming_fellas:block/fertilizer_holder_2" }
+    },
+    {
+      "when": { "level": "3" },
+      "apply": { "model": "farming_fellas:block/fertilizer_holder_3" }
+    }
+  ]
+}
