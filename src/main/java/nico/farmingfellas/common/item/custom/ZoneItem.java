@@ -15,6 +15,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlockEntity;
 import nico.farmingfellas.common.entity.base.ZoneHolderEntity;
 import nico.farmingfellas.common.item.SimpleItemModel;
 import nico.farmingfellas.common.zone.Zone;
@@ -74,11 +75,11 @@ public class ZoneItem extends Item implements SimpleItemModel {
             Zone stackSavedZone = Zone.createFromNbt(serverWorld, stack.getSubNbt(ZONE_DATA));
 
             boolean shouldContinue = true;
-            if (world.getBlockEntity(pos) instanceof ChestBlockEntity && context.getPlayer().isSneaking() && shouldContinue) {
-                if(stackSavedZone.getChests().contains(pos)) {
-                    stackSavedZone.removeInventoryBlock(pos);
+            if ((world.getBlockEntity(pos) instanceof ChestBlockEntity || world.getBlockEntity(pos) instanceof FertilizerHolderBlockEntity) && context.getPlayer().isSneaking() && shouldContinue) {
+                if (stackSavedZone.getImportantBlocks().contains(pos)) {
+                    stackSavedZone.removeImportantBlock(pos);
                 } else {
-                    stackSavedZone.addInventoryBlock(pos);
+                    stackSavedZone.addImportantBlock(pos);
                 }
                 shouldContinue = false;
             }
@@ -155,9 +156,9 @@ public class ZoneItem extends Item implements SimpleItemModel {
         return Optional.of(BlockPos.fromLong(stack.getSubNbt(ZONE_DATA).getLong("corner_b")));
     }
 
-    public static List<BlockPos> getChests(ItemStack stack) {
+    public static List<BlockPos> getImportantBlocks(ItemStack stack) {
         if (stack.getSubNbt(ZONE_DATA) == null) return new ArrayList<>();
-        return Arrays.stream(stack.getSubNbt(ZONE_DATA).getLongArray("chests")).mapToObj(BlockPos::fromLong).toList();
+        return Arrays.stream(stack.getSubNbt(ZONE_DATA).getLongArray("important_blocks")).mapToObj(BlockPos::fromLong).toList();
     }
 
     @Override

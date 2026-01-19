@@ -25,17 +25,7 @@ public class FertilizerHolderBlockEntity extends BlockEntity {
 
         currentFertilizers += inserted;
 
-        var world = getWorld();
-        var pos = getPos();
-
-        int level = (int)Math.floor(
-                currentFertilizers * ((FertilizerHolderBlock.MAX_LEVEL - 1) / (float) MAX_FERTILIZERS)
-        ) + 1;
-
-        world.setBlockState(
-                pos,
-                world.getBlockState(pos).with(FertilizerHolderBlock.LEVEL, level)
-        );
+        updateBlockState();
 
         return inserted;
     }
@@ -52,5 +42,19 @@ public class FertilizerHolderBlockEntity extends BlockEntity {
         super.readNbt(nbt);
 
         this.currentFertilizers = nbt.getInt("amount");
+    }
+
+    public void updateBlockState() {
+        var world = getWorld();
+        var pos = getPos();
+
+        int level = (int)Math.floor(
+                currentFertilizers * ((FertilizerHolderBlock.MAX_LEVEL - 1) / (float) MAX_FERTILIZERS)
+        ) + Math.min(currentFertilizers, 1);
+
+        world.setBlockState(
+                pos,
+                world.getBlockState(pos).with(FertilizerHolderBlock.LEVEL, level)
+        );
     }
 }

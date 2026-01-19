@@ -102,7 +102,7 @@ public class PlantCropGoal extends Goal {
         ItemStack seeds = CropBlockHarvestGoal.findSeed(golem, cropToPlant);
         if (seeds == null) return;
 
-        if (pos.getSquaredDistance(golem.getPos()) > 2) {
+        if (pos.getSquaredDistance(golem.getPos()) > 2.25f) {
             Vec3d $ = pos.toCenterPos().add(0, -0.5, 0);
             golem.getNavigation().startMovingTo($.x, $.y, $.z, 1);
             return;

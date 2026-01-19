@@ -8,7 +8,6 @@ import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.GolemAnimationState;
 
@@ -194,7 +193,7 @@ public class EmptyInventoryGoal extends Goal {
         Map<BlockPos, Double> chestDistances = new HashMap<>();
 
         golem.getZone().ifPresent(zone -> {
-            zone.getChests().forEach(chest -> {
+            zone.getChests(world).forEach(chest -> {
                 ChestBlockEntity be = (ChestBlockEntity) world.getBlockEntity(chest);
                 // Filter out full chests
                 if (!isChestFull(be)) {

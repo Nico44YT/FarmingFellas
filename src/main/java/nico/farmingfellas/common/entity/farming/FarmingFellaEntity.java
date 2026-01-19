@@ -12,6 +12,8 @@ import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.goal.EmptyInventoryGoal;
 import nico.farmingfellas.common.entity.farming.goal.FarmlandTillGoal;
+import nico.farmingfellas.common.entity.farming.goal.FertilizeGoal;
+import nico.farmingfellas.common.entity.farming.goal.ObtainFertilizerGoal;
 import nico.farmingfellas.common.entity.farming.goal.PlantCropGoal;
 import nico.farmingfellas.common.entity.farming.goal.harvest.*;
 import nico.farmingfellas.common.item.ModItems;
@@ -29,6 +31,9 @@ public class FarmingFellaEntity extends FellaGolemEntity {
 
         this.goalSelector.add(1, new CropBlockHarvestGoal(this));
         this.goalSelector.add(1, new StemBlockHarvestGoal(this));
+
+        this.goalSelector.add(1, new FertilizeGoal(this));
+        this.goalSelector.add(1, new ObtainFertilizerGoal(this, 10));
 
         this.goalSelector.add(1, new SweetBerryHarvestGoal(this));
         this.goalSelector.add(1, new CocoaBeansHarvestGoal(this));

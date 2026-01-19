@@ -78,7 +78,7 @@ public class ZoneAreaRenderer {
         highlightBlocks(holdingStack, pos, matrix, context);
 
         VertexConsumer chestHighlightVC = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
-        ZoneItem.getChests(holdingStack).forEach(chestPos -> {
+        ZoneItem.getImportantBlocks(holdingStack).forEach(chestPos -> {
             drawSolidBox(
                     matrix,
                     chestPos.toCenterPos().add(-camPos.x, -camPos.y, -camPos.z),
