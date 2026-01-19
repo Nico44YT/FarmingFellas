@@ -6,6 +6,7 @@
   "mixins": [
     "CropBlockMixin",
     "FarmlandBlockMixin",
+    "PitcherCropBlockMixin",
     "SweetBerryBushBlockMixin"
   ],
   "client": [
