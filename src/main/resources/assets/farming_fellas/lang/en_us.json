@@ -18,5 +18,9 @@
   "item.farming_fellas.zoning_map.to": "§7To: %s",
   "item.farming_fellas.zoning_map.zone_id": "§7Zone: %s",
   "item.farming_fellas.zoning_map.zone_area": "§7Area: %s blocks",
-  "item.farming_fellas.zoning_map.more_info": "§7§o(Shift to view more info)"
+  "item.farming_fellas.zoning_map.more_info": "§7§o(Shift to view more info)",
+
+  "item.farming_fellas.fertilizer": "Fertilizer",
+  "block.farming_fellas.fertilizer_holder": "Fertilizer Holder",
+  "block.farming_fellas.fertilized_farmland": "Fertilized Farmland"
 }

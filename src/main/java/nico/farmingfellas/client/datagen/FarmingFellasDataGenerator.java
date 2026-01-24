@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 import net.minecraft.data.DataProvider;
 import nico.farmingfellas.client.datagen.provider.ModLootTableProvider;
 import nico.farmingfellas.client.datagen.provider.ModModelProvider;
+import nico.farmingfellas.client.datagen.provider.ModRecipeProvider;
 import nico.farmingfellas.client.datagen.provider.ModTagProvider;
 
 public class FarmingFellasDataGenerator implements DataGeneratorEntrypoint {
@@ -16,5 +17,6 @@ public class FarmingFellasDataGenerator implements DataGeneratorEntrypoint {
 
         pack.addProvider(ModLootTableProvider::new);
         pack.addProvider(ModTagProvider.ModBlockTagProvider::new);
+        pack.addProvider(ModRecipeProvider::new);
     }
 }
