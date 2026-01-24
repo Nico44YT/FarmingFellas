@@ -16,8 +16,8 @@ public class FarmingFellasMain implements ModInitializer {
     public void onInitialize() {
         ModGamerules.register();
         ModEntities.register();
-        ModItems.register();
         ModBlocks.register();
+        ModItems.register();
 
         ModHandledScreens.register();
     }
