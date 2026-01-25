@@ -1,7 +1,7 @@
 package nico.farmingfellas.client.renderer.world;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
-import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.ChestBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
@@ -15,11 +15,18 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import nico.farmingfellas.FarmingFellasUtil;
 import nico.farmingfellas.client.renderer.ModRenderLayers;
+import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlock;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.common.item.custom.ZoneItem;
 import org.joml.Matrix4f;
 
 public class ZoneAreaRenderer {
+    public static final int MAXIMUM_SIZE = 16 * 16 * 16;
+    public static final float[] ZONE_TOO_LARGE = FarmingFellasUtil.intToRgbFloat(0xDD_11_11);
+    public static final float[] DEFAULT_ZONE_OUTLINE = FarmingFellasUtil.intToRgbFloat(0xFF_00_FF);
+    public static final float[] DEFAULT_ZONE_SIDES = new float[]{1, 1, 1};
+    public static final float[] CHEST_HIGHLIGHT_OUTLINE = FarmingFellasUtil.intToRgbFloat(0xDD_33_33);
+    public static final float[] FERTILIZER_HOLDER_HIGHLIGHT_OUTLINE = FarmingFellasUtil.intToRgbFloat(0x11_DD_11);
 
     private static Vec3d smoothA = null;
     private static Vec3d smoothB = null;
@@ -61,32 +68,35 @@ public class ZoneAreaRenderer {
         smoothA = lerp(smoothA, targetA, speed * tickDelta * 20f);
         smoothB = lerp(smoothB, targetB, speed * tickDelta * 20f);
 
-        Box box = new Box(smoothA, smoothB).expand(0.51f);
+        Box box = new Box(smoothA, smoothB).expand(0.5f);
+        final Box sizeBox = new Box(targetA, targetB);
 
-
-        float[] rgb = FarmingFellasUtil.intToRgbFloat(0xFF00FF);
+        float[] color = DEFAULT_ZONE_OUTLINE;
+        float[] sidesColor = DEFAULT_ZONE_SIDES;
+        double volume = sizeBox.getXLength() * sizeBox.getYLength() * sizeBox.getZLength();
+        if (volume >= MAXIMUM_SIZE) {
+            color = ZONE_TOO_LARGE;
+            sidesColor = ZONE_TOO_LARGE;
+        }
 
         Camera camera = context.camera();
         Vec3d camPos = camera.getPos();
-        VertexConsumer vc = context.consumers().getBuffer(RenderLayer.getLines());
         float alpha = 0.5f + (float) ((Math.sin(client.player.age / 8f) + 1.0) / 2.0);
 
-        WorldRenderer.drawBox(matrix, vc, box.offset(-camPos.x, -camPos.y, -camPos.z), rgb[0], rgb[1], rgb[2], Math.min(alpha, 1));
+        WorldRenderer.drawBox(matrix, context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LINES_LAYER), box.offset(-camPos.x, -camPos.y, -camPos.z), color[0], color[1], color[2], Math.min(alpha, 1));
 
-        highlightBlocks(holdingStack, pos, matrix, context);
+        //highlightBlocks(holdingStack, pos, matrix, context);
 
-        VertexConsumer chestHighlightVC = context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER);
         ZoneItem.getImportantBlocks(holdingStack).forEach(chestPos -> {
-            drawSolidBox(
-                    matrix,
-                    chestPos.toCenterPos().add(-camPos.x, -camPos.y, -camPos.z),
-                    chestHighlightVC,
-                    0.51f,
-                    1,
-                    1,
-                    1,
-                    0.25f
-            );
+            assert MinecraftClient.getInstance().world != null;
+            final var blockState = MinecraftClient.getInstance().world.getBlockState(chestPos);
+            final Box blockBox = new Box(chestPos);
+
+            float[] _color = null;
+            if (blockState.getBlock() instanceof ChestBlock) _color = CHEST_HIGHLIGHT_OUTLINE;
+            else if (blockState.getBlock() instanceof FertilizerHolderBlock) _color = FERTILIZER_HOLDER_HIGHLIGHT_OUTLINE;
+
+            if (_color != null) WorldRenderer.drawBox(matrix, context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LINES_LAYER), blockBox.offset(-camPos.x, -camPos.y, -camPos.z), _color[0], _color[1], _color[2], Math.min(alpha, 1));
         });
 
         Vec3d centerPos = new Vec3d(
@@ -97,11 +107,11 @@ public class ZoneAreaRenderer {
 
         drawSolidBox(matrix,
                 centerPos.subtract(camPos),
-                vc,
-                ((float) (Math.abs(smoothB.getX() - smoothA.getX())) * 0.5f) + 0.51f,
-                ((float) (Math.abs(smoothB.getY() - smoothA.getY())) * 0.5f) + 0.51f,
-                ((float) (Math.abs(smoothB.getZ() - smoothA.getZ())) * 0.5f) + 0.51f,
-                1, 1, 1, 0.15f
+                context.consumers().getBuffer(ModRenderLayers.ZONE_OVERLAY_LAYER),
+                ((float) (Math.abs(smoothB.getX() - smoothA.getX())) * 0.5f) + 0.5f,
+                ((float) (Math.abs(smoothB.getY() - smoothA.getY())) * 0.5f) + 0.5f,
+                ((float) (Math.abs(smoothB.getZ() - smoothA.getZ())) * 0.5f) + 0.5f,
+                sidesColor[0], sidesColor[1], sidesColor[2], 0.15f
         );
 
         matrix.pop();
@@ -193,10 +203,10 @@ public class ZoneAreaRenderer {
         for (int[] quad : quads) {
             for (int u : quad) {
                 vc.vertex(mat,
-                        (float) (vertices[u][0] * scaleX + pos.x),
-                        (float) (vertices[u][1] * scaleY + pos.y),
-                        (float) (vertices[u][2] * scaleZ + pos.z)
-                )
+                                (float) (vertices[u][0] * scaleX + pos.x),
+                                (float) (vertices[u][1] * scaleY + pos.y),
+                                (float) (vertices[u][2] * scaleZ + pos.z)
+                        )
                         .color(r, g, b, a)
                         .normal(0, 1, 0)
                         .light(LightmapTextureManager.MAX_LIGHT_COORDINATE)

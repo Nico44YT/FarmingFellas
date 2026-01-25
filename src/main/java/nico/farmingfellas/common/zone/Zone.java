@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class Zone {
 
@@ -138,16 +139,16 @@ public class Zone {
         });
     }
 
-    public Set<BlockPos> getImportantBlocks() {
+    public Set<BlockPos> getImportantBlocks(World world) {
         return this.importantBlocks;
     }
 
     public List<BlockPos> getFertilizerHolder(World world) {
-        return this.importantBlocks.stream().filter(pos -> world.getBlockState(pos).getBlock() instanceof FertilizerHolderBlock).toList();
+        return getImportantBlocks(world).stream().filter(pos -> world.getBlockState(pos).getBlock() instanceof FertilizerHolderBlock).toList();
     }
 
     public List<BlockPos> getChests(World world) {
-        return this.importantBlocks.stream().filter(pos -> world.getBlockEntity(pos) instanceof ChestBlockEntity).toList();
+        return getImportantBlocks(world).stream().filter(pos -> world.getBlockEntity(pos) instanceof ChestBlockEntity).toList();
     }
 
     public void addImportantBlock(BlockPos pos) {

@@ -3,6 +3,7 @@ package nico.farmingfellas.client.renderer;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.mixin.client.rendering.EntityModelLayersAccessor;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -11,6 +12,8 @@ import nico.farmingfellas.client.renderer.entity.model.FarmingGolemModel;
 import nico.farmingfellas.client.renderer.entity.model.LumberjackGolemModel;
 import nico.farmingfellas.client.renderer.entity.model.MiningGolemModel;
 import nico.farmingfellas.client.renderer.entity.model.ZoneMissingModel;
+
+import java.util.OptionalDouble;
 
 public class ModRenderLayers {
 
@@ -32,6 +35,25 @@ public class ModRenderLayers {
                     .transparency(RenderLayer.TRANSLUCENT_TRANSPARENCY)
                     .cull(RenderLayer.DISABLE_CULLING)
                     .writeMaskState(RenderLayer.COLOR_MASK)
+                    .layering(RenderLayer.POLYGON_OFFSET_LAYERING)
+                    .build(true)
+    );
+
+    public static final RenderLayer ZONE_OVERLAY_LINES_LAYER = RenderLayer.of(
+            FarmingFellasMain.id("zone_overlay_lines").toString(),
+            VertexFormats.LINES,
+            VertexFormat.DrawMode.LINES,
+            256,
+            false,
+            true,
+            RenderLayer.MultiPhaseParameters.builder()
+                    .program(RenderLayer.LINES_PROGRAM)
+                    .transparency(RenderLayer.TRANSLUCENT_TRANSPARENCY)
+                    .cull(RenderLayer.DISABLE_CULLING)
+                    .writeMaskState(RenderLayer.ALL_MASK)
+                    .layering(RenderLayer.POLYGON_OFFSET_LAYERING)
+                    .target(RenderLayer.ITEM_ENTITY_TARGET)
+                    .lineWidth(new RenderPhase.LineWidth(OptionalDouble.of(5)))
                     .build(false)
     );
 

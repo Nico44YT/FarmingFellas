@@ -12,8 +12,10 @@ import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlockEntity;
 import nico.farmingfellas.common.entity.base.ZoneHolderEntity;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class ZoneItem extends Item implements SimpleItemModel {
+    public static final int MAX_SIZE = 16 * 16 * 16;
 
     private static final String ZONE_LAST_UPDATE_TIME = "last_update_time";
     public static final String ZONE_ID = "zone_id";
@@ -76,7 +79,7 @@ public class ZoneItem extends Item implements SimpleItemModel {
 
             boolean shouldContinue = true;
             if ((world.getBlockEntity(pos) instanceof ChestBlockEntity || world.getBlockEntity(pos) instanceof FertilizerHolderBlockEntity) && context.getPlayer().isSneaking() && shouldContinue) {
-                if (stackSavedZone.getImportantBlocks().contains(pos)) {
+                if (stackSavedZone.getImportantBlocks(world).contains(pos)) {
                     stackSavedZone.removeImportantBlock(pos);
                 } else {
                     stackSavedZone.addImportantBlock(pos);
@@ -95,6 +98,14 @@ public class ZoneItem extends Item implements SimpleItemModel {
             }
 
             if (shouldContinue && stackSavedZone.getCornerB().isEmpty()) {
+                Box testBox = new Box(stackSavedZone.getCornerA().get(), pos);
+                double volume = testBox.getXLength() * testBox.getYLength() * testBox.getZLength();
+
+                if(volume >= MAX_SIZE) {
+                    context.getPlayer().sendMessage(Text.translatable("item.farming_fellas.zoning_map.zone_too_large").formatted(Formatting.RED), true);
+                    return ActionResult.PASS;
+                }
+
                 stackSavedZone.setCornerB(world, pos);
                 shouldContinue = false;
             }

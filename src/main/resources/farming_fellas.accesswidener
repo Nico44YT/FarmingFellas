@@ -6,6 +6,7 @@ accessible method net/minecraft/block/FarmlandBlock hasCrop (Lnet/minecraft/worl
 accessible method net/minecraft/util/WorldSavePath <init> (Ljava/lang/String;)V
 
 accessible class net/minecraft/client/render/RenderLayer$MultiPhaseParameters
+accessible class net/minecraft/client/render/RenderPhase$LineWidth
 
 accessible field net/minecraft/block/entity/ChestBlockEntity stateManager Lnet/minecraft/block/entity/ViewerCountManager;
 accessible field net/minecraft/block/entity/ViewerCountManager viewerCount I
