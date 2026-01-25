@@ -1,11 +1,9 @@
 package nico.farmingfellas.client.renderer.world;
 
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
@@ -198,7 +196,12 @@ public class ZoneAreaRenderer {
                         (float) (vertices[u][0] * scaleX + pos.x),
                         (float) (vertices[u][1] * scaleY + pos.y),
                         (float) (vertices[u][2] * scaleZ + pos.z)
-                ).color(r, g, b, a).next();
+                )
+                        .color(r, g, b, a)
+                        .normal(0, 1, 0)
+                        .light(LightmapTextureManager.MAX_LIGHT_COORDINATE)
+                        .overlay(OverlayTexture.DEFAULT_UV)
+                        .next();
             }
         }
     }
