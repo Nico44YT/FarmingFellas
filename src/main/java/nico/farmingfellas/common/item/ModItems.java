@@ -1,5 +1,6 @@
 package nico.farmingfellas.common.item;
 
+import it.unimi.dsi.fastutil.ints.IntComparators;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
@@ -18,6 +19,7 @@ import nico.farmingfellas.common.item.custom.FertilizerItem;
 import nico.farmingfellas.common.item.custom.GolemItem;
 import nico.farmingfellas.common.item.custom.ZoneItem;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,8 +42,8 @@ public class ModItems {
                 .build()
         );
 
-        items.forEach(item -> {
-            ItemGroupEvents.modifyEntriesEvent(ITEM_GROUP).register(entries -> entries.add(item));
+        ItemGroupEvents.modifyEntriesEvent(ITEM_GROUP).register(entries -> {
+            entries.addAll(items.stream().sorted(Comparator.comparingInt(Item::getRawId)).map(Item::getDefaultStack).toList());
         });
     }
 
