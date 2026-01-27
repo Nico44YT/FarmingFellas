@@ -17,6 +17,7 @@ import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.goal.EmptyInventoryGoal;
 import nico.farmingfellas.common.entity.farming.goal.harvest.CropBlockHarvestGoal;
+import nico.farmingfellas.common.entity.lumberjack.goal.harvest.SaplingPlantGoal;
 import nico.farmingfellas.common.entity.lumberjack.goal.harvest.TreeHarvestGoal;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.screen.custom.Generic3x2ContainerScreenHandler;
@@ -31,6 +32,7 @@ public class LumberjackFellaEntity extends FellaGolemEntity {
     protected void initGoals() {
         super.initGoals();
 
+        this.goalSelector.add(1, new SaplingPlantGoal(this));
         this.goalSelector.add(1, new TreeHarvestGoal(this));
         this.goalSelector.add(2, new EmptyInventoryGoal(this));
     }

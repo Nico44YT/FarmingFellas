@@ -22,7 +22,7 @@ public class ModBlocks {
 
     public static final Block FERTILIZER_HOLDER = register("fertilizer_holder", AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), FertilizerHolderBlock::new, new Item.Settings());
     public static final Block FERTILIZED_FARMLAND = register("fertilized_farmland", AbstractBlock.Settings.copy(Blocks.FARMLAND).ticksRandomly(), FertilizedFarmlandBlock::new, new Item.Settings());
-    public static final Block SAPLING_HOLDER = register("sapling_holder", AbstractBlock.Settings.copy(Blocks.DIRT), Block::new);
+    public static final Block SAPLING_HOLDER = register("sapling_holder", AbstractBlock.Settings.copy(Blocks.COBBLESTONE), Block::new);
 
     public static final BlockEntityType<FertilizerHolderBlockEntity> FERTILIZED_HOLDER_TYPE = registerType("fertilizer_holder", FertilizerHolderBlockEntity::new, new Block[]{FERTILIZER_HOLDER});
 
