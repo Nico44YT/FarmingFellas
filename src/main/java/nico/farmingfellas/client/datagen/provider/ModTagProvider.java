@@ -23,6 +23,7 @@ public class ModTagProvider {
             getOrCreateTagBuilder(BlockTags.BIG_DRIPLEAF_PLACEABLE).add(ModBlocks.FERTILIZED_FARMLAND);
 
             getOrCreateTagBuilder(BlockTags.AXE_MINEABLE).add(ModBlocks.FERTILIZER_HOLDER);
+
         }
     }
 }

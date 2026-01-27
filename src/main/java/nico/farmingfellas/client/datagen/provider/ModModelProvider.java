@@ -20,6 +20,9 @@ public class ModModelProvider extends FabricModelProvider {
     @Override
     public void generateBlockStateModels(BlockStateModelGenerator blockStateModelGenerator) {
         registerFarmland(blockStateModelGenerator, ModBlocks.FERTILIZED_FARMLAND);
+
+        blockStateModelGenerator.blockStateCollector.accept(BlockStateModelGenerator.createSingletonBlockState(ModBlocks.SAPLING_HOLDER, ModBlocks.SAPLING_HOLDER.getRegistryEntry().getKey().get().getValue().withPrefixedPath("block/")));
+
     }
 
     @Override

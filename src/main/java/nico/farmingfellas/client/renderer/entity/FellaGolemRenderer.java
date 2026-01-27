@@ -38,9 +38,11 @@ public class FellaGolemRenderer<E extends FellaGolemEntity, M extends EntityMode
                     VertexConsumerProvider consumers,
                     int light
             ) {
+                matrices.push();
                 matrices.translate(-0.05F, 1.2F, 0.2); // Y up, Z forward/back
 
                 super.renderItem(entity, stack, mode, arm, matrices, consumers, light);
+                matrices.pop();
             }
         });
 

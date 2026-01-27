@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class HarvestCropGoal<T extends FellaGolemEntity> extends Goal {
-    private final T golem;
-    private BlockPos targetCrop;
+    protected final T golem;
+    protected BlockPos targetCrop;
 
     public HarvestCropGoal(T golem) {
         this.golem = golem;
@@ -150,4 +150,5 @@ public abstract class HarvestCropGoal<T extends FellaGolemEntity> extends Goal {
     public abstract boolean harvest(T golem, World world, BlockPos pos, BlockState state);
 
     public abstract boolean replant(T golem, World world, BlockPos pos, BlockState state);
+
 }

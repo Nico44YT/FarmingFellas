@@ -1,6 +1,5 @@
 package nico.farmingfellas.common.item;
 
-import it.unimi.dsi.fastutil.ints.IntComparators;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.Item;
@@ -17,6 +16,7 @@ import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 import nico.farmingfellas.common.entity.mining.MiningFellaEntity;
 import nico.farmingfellas.common.item.custom.FertilizerItem;
 import nico.farmingfellas.common.item.custom.GolemItem;
+import nico.farmingfellas.common.item.custom.SaplingHolderKitItem;
 import nico.farmingfellas.common.item.custom.ZoneItem;
 
 import java.util.Comparator;
@@ -30,6 +30,7 @@ public class ModItems {
 
     public static final Item BLANK_ZONING_MAP = register("blank_zoning_map", new Item.Settings().maxCount(1), ZoneItem::new);
     public static final Item FERTILIZER_ITEM = register("fertilizer", new Item.Settings(), FertilizerItem::new);
+    public static final Item SAPLING_HOLDER_KIT = register("sapling_holder_kit", new Item.Settings().maxCount(16), SaplingHolderKitItem::new);
 
     public static final Item FARMING_GOLEM_ITEM = register("farming_golem", new Item.Settings(), $ -> new GolemItem($, world -> new FarmingFellaEntity(ModEntities.FARMING_GOLEM, world)));
     public static final Item LUMBERJACK_GOLEM_ITEM = register("lumberjack_golem", new Item.Settings(), $ -> new GolemItem($, world -> new LumberjackFellaEntity(ModEntities.LUMBERJACK_GOLEM, world)));

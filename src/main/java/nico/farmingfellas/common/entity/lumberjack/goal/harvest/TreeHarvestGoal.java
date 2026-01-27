@@ -7,19 +7,27 @@ import net.minecraft.block.SaplingBlock;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
 
-    private List<BlockPos> cachedLogs;
+    private int workAmount;
+    private Map<TagKey<Block>, List<BlockPos>> cachedBlocks;
     private BlockPos cachedRoot;
 
     public TreeHarvestGoal(LumberjackFellaEntity golem) {
@@ -39,45 +47,61 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
 
     @Override
     public boolean harvest(LumberjackFellaEntity golem, World world, BlockPos pos, BlockState state) {
-
-        if (cachedLogs == null || !pos.equals(cachedRoot)) {
+        if (cachedBlocks == null || !pos.equals(cachedRoot)) {
             cachedRoot = pos;
-            cachedLogs = findTreeLogs(world, pos);
+            cachedBlocks = findTreeLogs(world, pos);
 
-            if (cachedLogs.isEmpty()) {
-                cachedLogs = null;
+            if (cachedBlocks.isEmpty()) {
+                cachedBlocks = null;
                 return true;
             }
         }
 
-        golem.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+        golem.setStackInHand(Hand.MAIN_HAND, Items.IRON_AXE.getDefaultStack());
 
-        int workTime = 10 + cachedLogs.size() * 4;
+        int workTime = Math.min(10 + workAmount, 20 * 16 * 5);
 
         if (LumberjackFellaEntity.spawnBlockParticlesAndWait(
                 workTime, golem, pos,
                 (cooldown) -> {
-                    BlockPos target = cachedLogs.get(cooldown % cachedLogs.size());
-                    golem.lookAt(target.toCenterPos());
+                    golem.lookAt(cachedRoot.toCenterPos());
+
+                    if (cooldown % 3 == 0) {
+                        Random random = world.getRandom();
+                        golem.playSound(state.getSoundGroup().getBreakSound(), 0.25f, 1f + (random.nextBetween(-10, 10) / 100f));
+                    }
                 }
         )) return false;
 
-        for (BlockPos logPos : cachedLogs) {
-            if (world.getBlockState(logPos).isIn(BlockTags.LOGS)) {
-                world.breakBlock(logPos, true, golem);
+        cachedBlocks.forEach((tag, blockPosList) -> blockPosList.forEach(blockPos -> {
+            BlockState $ = world.getBlockState(blockPos);
+            if(world.getBlockState(blockPos).isIn(tag)) {
+                Block.getDroppedStacks($, (ServerWorld) world, pos, null, golem, Items.IRON_AXE.getDefaultStack()).forEach(stack -> Block.dropStack(world, pos, golem.getInventory().addStack(stack)));
+                world.breakBlock(blockPos, false, golem);
             }
-        }
+        }));
 
-        cachedLogs = null;
+        cachedBlocks = null;
         cachedRoot = null;
+        golem.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
         return true;
     }
 
-    private static final int MAX_RADIUS = 4;
-    private static final int MAX_HEIGHT = 12;
+    private static final int MAX_RADIUS = 16;
+    private static final int MAX_HEIGHT = 32;
 
-    private static List<BlockPos> findTreeLogs(World world, BlockPos origin) {
-        List<BlockPos> logs = new ArrayList<>();
+    private Map<TagKey<Block>, List<BlockPos>> findTreeLogs(World world, BlockPos origin) {
+        Map<TagKey<Block>, List<BlockPos>> map = new HashMap<>();
+        workAmount = 0;
+
+        findBlocks(BlockTags.LOGS, 5, world, origin, map);
+        findBlocks(BlockTags.LEAVES, 0, world, origin, map);
+
+        return map;
+    }
+
+    private void findBlocks(TagKey<Block> tag, int workAmountAddition, World world, BlockPos origin, Map<TagKey<Block>, List<BlockPos>> map) {
+        List<BlockPos> blocks = new ArrayList<>();
 
         int ox = origin.getX();
         int oy = origin.getY();
@@ -88,46 +112,19 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
                 for (int z = -MAX_RADIUS; z <= MAX_RADIUS; z++) {
 
                     BlockPos pos = new BlockPos(ox + x, oy + y, oz + z);
-                    if (world.getBlockState(pos).isIn(BlockTags.LOGS)) {
-                        logs.add(pos);
+                    if (world.getBlockState(pos).isIn(tag)) {
+                        workAmount += workAmountAddition;
+                        blocks.add(pos);
                     }
                 }
             }
         }
 
-        return logs;
+        map.put(tag, blocks);
     }
 
     @Override
     public boolean replant(LumberjackFellaEntity golem, World world, BlockPos pos, BlockState state) {
-        BlockState ground = world.getBlockState(pos.down());
-
-        if (!(ground.isOf(Blocks.DIRT)
-                || ground.isOf(Blocks.GRASS_BLOCK)
-                || ground.isOf(Blocks.COARSE_DIRT)
-                || ground.isOf(Blocks.PODZOL))) {
-            return true;
-        }
-
-        ItemStack saplingStack = findSapling(golem);
-        if (saplingStack == null) return true;
-
-        Block sapling = ((BlockItem) saplingStack.getItem()).getBlock();
-
-        world.setBlockState(pos, sapling.getDefaultState(), Block.NOTIFY_ALL);
-        saplingStack.decrement(1);
-        return true;
-    }
-
-    private static ItemStack findSapling(Inventory inv) {
-        for (int i = 0; i < inv.size(); i++) {
-            ItemStack stack = inv.getStack(i);
-            if (stack.isEmpty()) continue;
-
-            if (stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof SaplingBlock) {
-                return stack;
-            }
-        }
-        return null;
+        return false;
     }
 }
