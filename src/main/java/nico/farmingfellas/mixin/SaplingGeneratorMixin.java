@@ -26,9 +26,9 @@ public abstract class SaplingGeneratorMixin {
         if(belowState.isOf(ModBlocks.SAPLING_HOLDER)) farming_fellas$belowState = belowState;
     }
 
-    @Inject(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/feature/ConfiguredFeature;generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockPos;)Z"))
+    @Inject(method = "generate", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/feature/ConfiguredFeature;generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/world/gen/chunk/ChunkGenerator;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockPos;)Z", shift = At.Shift.AFTER))
     public void farming_fellas$afterGenerate(ServerWorld world, ChunkGenerator chunkGenerator, BlockPos pos, BlockState state, Random random, CallbackInfoReturnable<Boolean> cir) {
-        if(farming_fellas$belowState != null) world.setBlockState(pos, farming_fellas$belowState, Block.NO_REDRAW);
+        if(farming_fellas$belowState != null) world.setBlockState(pos.down(), farming_fellas$belowState, Block.NO_REDRAW);
         farming_fellas$belowState = null;
     }
 }
