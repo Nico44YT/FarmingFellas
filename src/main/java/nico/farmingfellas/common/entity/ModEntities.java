@@ -10,6 +10,7 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import nico.farmingfellas.FarmingFellasMain;
+import nico.farmingfellas.common.entity.beekeeper.BeekeeperFellaEntity;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 import nico.farmingfellas.common.entity.mining.MiningFellaEntity;
@@ -25,6 +26,7 @@ public class ModEntities {
     public static final EntityType<FarmingFellaEntity> FARMING_GOLEM = register("farming_golem", FarmingFellaEntity::new, FarmingFellaEntity::createGolemAttributes);
     public static final EntityType<LumberjackFellaEntity> LUMBERJACK_GOLEM = register("lumberjack_golem", LumberjackFellaEntity::new, LumberjackFellaEntity::createGolemAttributes);
     public static final EntityType<MiningFellaEntity> MINING_GOLEM = register("mining_golem", MiningFellaEntity::new, MiningFellaEntity::createGolemAttributes);
+    public static final EntityType<BeekeeperFellaEntity> BEEKEEPER_GOLEM = register("beekeeper_golem", BeekeeperFellaEntity::new, BeekeeperFellaEntity::createGolemAttributes);
 
     public static void register() {
         ModEntities.ATTRIBUTES.forEach((entityType, builderSupplier) -> FabricDefaultAttributeRegistry.register(entityType, builderSupplier.get()));

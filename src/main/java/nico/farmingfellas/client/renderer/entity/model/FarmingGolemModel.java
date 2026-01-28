@@ -14,7 +14,8 @@ public class FarmingGolemModel<T extends FarmingFellaEntity> extends AbstractGol
         ModelPartData modelPartData = modelData.getRoot();
         ModelPartData main = modelPartData.addChild("main", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
 
-        ModelPartData head = main.addChild("head", ModelPartBuilder.create().uv(0, 13).cuboid(-3.0F, -3.0F, -2.0F, 6.0F, 3.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -10.0F, 0.0F));
+        ModelPartData head = main.addChild("head", ModelPartBuilder.create().uv(0, 13).cuboid(-3.0F, -3.0F, -2.0F, 6.0F, 3.0F, 4.0F, new Dilation(0.0F))
+                .uv(21, 53).cuboid(-3.5F, -3.0F, -2.5F, 7.0F, 3.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -10.0F, 0.0F));
 
         ModelPartData hat = head.addChild("hat", ModelPartBuilder.create().uv(0, 45).cuboid(-3.0F, -5.0F, -2.0F, 6.0F, 2.0F, 4.0F, new Dilation(0.0F))
                 .uv(-10, 51).cuboid(-5.0F, -3.0F, -5.0F, 10.0F, 0.0F, 10.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));

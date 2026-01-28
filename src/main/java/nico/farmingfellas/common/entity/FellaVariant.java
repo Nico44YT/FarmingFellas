@@ -6,7 +6,8 @@ public enum FellaVariant implements StringIdentifiable {
     FARMER("farmer"),
     MINER("miner"),
     LUMBERJACK("lumberjack"),
-    FISHER("fisher");
+    FISHER("fisher"),
+    BEEKEEPER("beekeeper"),;
 
     private final String id;
     FellaVariant(String id) {

@@ -2,6 +2,8 @@
   "itemGroup.farming_fellas.name": "Farming Fellas",
 
   "item.farming_fellas.blank_zoning_map": "Zoning Map",
+  "item.farming_fellas.sapling_holder_kit": "Sapling Holder Kit",
+  "block.farming_fellas.sapling_holder": "Sapling Holder",
 
   "entity.farming_fellas.farming_golem": "Farming Golem",
   "entity.farming_fellas.lumberjack_golem": "Lumberjack Golem",

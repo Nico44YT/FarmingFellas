@@ -8,10 +8,7 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import nico.farmingfellas.FarmingFellasMain;
-import nico.farmingfellas.client.renderer.entity.model.FarmingGolemModel;
-import nico.farmingfellas.client.renderer.entity.model.LumberjackGolemModel;
-import nico.farmingfellas.client.renderer.entity.model.MiningGolemModel;
-import nico.farmingfellas.client.renderer.entity.model.ZoneMissingModel;
+import nico.farmingfellas.client.renderer.entity.model.*;
 
 import java.util.OptionalDouble;
 
@@ -22,6 +19,7 @@ public class ModRenderLayers {
     public static final EntityModelLayer FARMING_GOLEM_LAYER = registerMain("farming_golem");
     public static final EntityModelLayer LUMBERJACK_GOLEM_LAYER = registerMain("lumberjack_golem");
     public static final EntityModelLayer MINING_GOLEM_LAYER = registerMain("mining_golem");
+    public static final EntityModelLayer BEEKEEPER_GOLEM_LAYER = registerMain("beekeeper_golem");
 
     public static final RenderLayer ZONE_OVERLAY_LAYER = RenderLayer.of(
             FarmingFellasMain.id("zone_overlay").toString(),
@@ -61,6 +59,7 @@ public class ModRenderLayers {
         EntityModelLayerRegistry.registerModelLayer(FARMING_GOLEM_LAYER, FarmingGolemModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(LUMBERJACK_GOLEM_LAYER, LumberjackGolemModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MINING_GOLEM_LAYER, MiningGolemModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(BEEKEEPER_GOLEM_LAYER, BeekeeperGolemModel::getTexturedModelData);
 
         EntityModelLayerRegistry.registerModelLayer(NO_ZONE_WARNING_LAYER, ZoneMissingModel::getTexturedModelData);
     }
