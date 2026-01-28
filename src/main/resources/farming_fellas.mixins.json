@@ -8,6 +8,7 @@
     "FarmlandBlockMixin",
     "PitcherCropBlockMixin",
     "PlantBlockMixin",
+    "SaplingGeneratorMixin",
     "SweetBerryBushBlockMixin"
   ],
   "client": [
