@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.block.ModBlocks;
+import nico.farmingfellas.common.entity.base.GolemAnimationState;
 import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 
@@ -36,6 +37,13 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
     }
 
     @Override
+    public void stop() {
+        super.stop();
+
+        golem.setState(GolemAnimationState.IDLE);
+    }
+
+    @Override
     public boolean isValidCrop(World world, BlockPos pos, BlockState state) {
         if (!state.isIn(BlockTags.LOGS)) return false;
 
@@ -51,8 +59,25 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
 
             if (cachedBlocks.isEmpty()) {
                 cachedBlocks = null;
+                golem.setState(GolemAnimationState.IDLE);
                 return true;
             }
+        }
+
+        for(Map.Entry<TagKey<Block>, List<BlockPos>> entry : new ArrayList<>(cachedBlocks.entrySet())) {
+            var filteredList = entry.getValue().stream().filter(
+                    $ -> world.getBlockState($).isIn(BlockTags.LOGS) || world.getBlockState($).isIn(BlockTags.LEAVES)
+            ).toList();
+
+            if(filteredList.isEmpty()) cachedBlocks.remove(entry.getKey());
+            else cachedBlocks.put(entry.getKey(), filteredList);
+        }
+
+        if(cachedBlocks.isEmpty()) {
+            cachedBlocks = null;
+            cachedRoot = null;
+            golem.setStackInHand(Hand.MAIN_HAND, ItemStack.EMPTY);
+            return false;
         }
 
         golem.setStackInHand(Hand.MAIN_HAND, Items.IRON_AXE.getDefaultStack());

@@ -437,9 +437,10 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     //region // * Dropping * //
     @Override
     protected void dropLoot(DamageSource damageSource, boolean causedByPlayer) {
-        this.spawnItemStack(this.getPickBlockStack());
         this.inventory.stacks.forEach(this::spawnItemStack);
         this.inventory.clear();
+
+        this.spawnItemStack(this.getPickBlockStack());
     }
 
     private void spawnItemStack(ItemStack stack) {

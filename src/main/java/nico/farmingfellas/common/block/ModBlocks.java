@@ -14,6 +14,7 @@ import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.block.fertilized_farmland.FertilizedFarmlandBlock;
 import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlock;
 import nico.farmingfellas.common.block.fertilizer_holder.FertilizerHolderBlockEntity;
+import nico.farmingfellas.common.block.sapling_holder.SaplingHolderBlock;
 import nico.farmingfellas.common.item.ModItems;
 
 import java.util.function.Function;
@@ -22,9 +23,9 @@ public class ModBlocks {
 
     public static final Block FERTILIZER_HOLDER = register("fertilizer_holder", AbstractBlock.Settings.copy(Blocks.OAK_PLANKS), FertilizerHolderBlock::new, new Item.Settings());
     public static final Block FERTILIZED_FARMLAND = register("fertilized_farmland", AbstractBlock.Settings.copy(Blocks.FARMLAND).ticksRandomly(), FertilizedFarmlandBlock::new, new Item.Settings());
-    public static final Block SAPLING_HOLDER = register("sapling_holder", AbstractBlock.Settings.copy(Blocks.COBBLESTONE), Block::new);
+    public static final Block SAPLING_HOLDER = register("sapling_holder", AbstractBlock.Settings.copy(Blocks.DIRT), SaplingHolderBlock::new);
 
-    public static final BlockEntityType<FertilizerHolderBlockEntity> FERTILIZED_HOLDER_TYPE = registerType("fertilizer_holder", FertilizerHolderBlockEntity::new, new Block[]{FERTILIZER_HOLDER});
+    public static final BlockEntityType<FertilizerHolderBlockEntity> FERTILIZED_HOLDER_TYPE = registerType("fertilizer_holder", FertilizerHolderBlockEntity::new, FERTILIZER_HOLDER);
 
     public static void register() {
 
@@ -40,7 +41,7 @@ public class ModBlocks {
         return block;
     }
 
-    private static <T extends BlockEntity> BlockEntityType<T> registerType(String name, FabricBlockEntityTypeBuilder.Factory<T> factory, Block[] blocks) {
+    private static <T extends BlockEntity> BlockEntityType<T> registerType(String name, FabricBlockEntityTypeBuilder.Factory<T> factory, Block... blocks) {
         return Registry.register(Registries.BLOCK_ENTITY_TYPE, FarmingFellasMain.id(name), FabricBlockEntityTypeBuilder.create(factory, blocks).build());
     }
 }
