@@ -16,6 +16,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
+import nico.farmingfellas.common.block.ModBlocks;
 import nico.farmingfellas.common.entity.base.goal.HarvestCropGoal;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 
@@ -39,10 +40,7 @@ public class TreeHarvestGoal extends HarvestCropGoal<LumberjackFellaEntity> {
         if (!state.isIn(BlockTags.LOGS)) return false;
 
         BlockState below = world.getBlockState(pos.down());
-        return below.isOf(Blocks.DIRT)
-                || below.isOf(Blocks.GRASS_BLOCK)
-                || below.isOf(Blocks.COARSE_DIRT)
-                || below.isOf(Blocks.PODZOL);
+        return below.isIn(BlockTags.DIRT) || below.isOf(ModBlocks.SAPLING_HOLDER);
     }
 
     @Override

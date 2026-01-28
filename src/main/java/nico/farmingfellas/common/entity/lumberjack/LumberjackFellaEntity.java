@@ -1,11 +1,13 @@
 package nico.farmingfellas.common.entity.lumberjack;
 
+import net.minecraft.block.SaplingBlock;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.mob.PathAwareEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.BlockTags;
@@ -41,7 +43,7 @@ public class LumberjackFellaEntity extends FellaGolemEntity {
     public void tick() {
         super.tick();
 
-        if(getBlockStateAtPos().isIn(BlockTags.SAPLINGS) && getNavigation().isIdle()) {
+        if(getBlockStateAtPos().isIn(BlockTags.SAPLINGS) && getNavigation().isIdle() && !(getStackInHand(Hand.MAIN_HAND).getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof SaplingBlock)) {
             for (Direction direction : Direction.HORIZONTAL) {
                 var pos = getBlockPos().offset(direction, 3);
 
