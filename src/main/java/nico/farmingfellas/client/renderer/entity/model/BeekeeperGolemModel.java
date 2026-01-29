@@ -7,7 +7,7 @@ import nico.farmingfellas.common.entity.beekeeper.BeekeeperFellaEntity;
 public class BeekeeperGolemModel<T extends BeekeeperFellaEntity> extends AbstractGolemModel<T> {
 
     public BeekeeperGolemModel(ModelPart root) {
-        super(root, RenderLayer::getEntityTranslucent);
+        super(root);
     }
 
     public static TexturedModelData getTexturedModelData() {

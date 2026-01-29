@@ -28,7 +28,7 @@ public abstract class AbstractGolemModel<T extends FellaGolemEntity> extends Ent
     protected final ModelPart right_leg;
 
     public AbstractGolemModel(ModelPart root) {
-        this(root, RenderLayer::getEntityCutoutNoCull);
+        this(root, RenderLayer::getEntityTranslucentCull);
     }
 
     public AbstractGolemModel(ModelPart root, Function<Identifier, RenderLayer> renderLayerFunction) {

@@ -15,7 +15,7 @@ import nico.farmingfellas.common.entity.mining.MiningFellaEntity;
 public class MiningGolemModel<T extends MiningFellaEntity> extends AbstractGolemModel<T> {
 
     public MiningGolemModel(ModelPart root) {
-        super(root, RenderLayer::getEntityTranslucent);
+        super(root);
     }
 
     public static TexturedModelData getTexturedModelData() {
