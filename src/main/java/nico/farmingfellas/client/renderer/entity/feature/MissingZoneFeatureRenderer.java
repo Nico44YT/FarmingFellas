@@ -48,7 +48,7 @@ public class MissingZoneFeatureRenderer<T extends FellaGolemEntity & ZoneHolderE
 
             WARNING_MODEL.render(
                     matrices,
-                    vertexConsumers.getBuffer(RenderLayer.getEntityTranslucentEmissive(getTexture(entity))),
+                    vertexConsumers.getBuffer(RenderLayer.getEntityCutout(getTexture(entity))),
                     light,
                     OverlayTexture.DEFAULT_UV,
                     1, 1, 1, 1
