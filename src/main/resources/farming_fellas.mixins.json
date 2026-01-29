@@ -4,6 +4,7 @@
   "package": "nico.farmingfellas.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "BeeEntityMixin",
     "CropBlockMixin",
     "FarmlandBlockMixin",
     "PitcherCropBlockMixin",
