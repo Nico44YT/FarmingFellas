@@ -12,6 +12,7 @@ import net.minecraft.registry.Registry;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.entity.beekeeper.BeekeeperFellaEntity;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
+import nico.farmingfellas.common.entity.fishing.FishingFellaEntity;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 import nico.farmingfellas.common.entity.mining.MiningFellaEntity;
 
@@ -21,12 +22,13 @@ import java.util.function.Supplier;
 
 public class ModEntities {
     private static final EntityDimensions DEFAULT_DIMENSIONS = EntityDimensions.fixed(0.75f, 0.95f);
-    private static Map<EntityType<? extends LivingEntity>, Supplier<DefaultAttributeContainer.Builder>> ATTRIBUTES = new HashMap<>();
+    private static final Map<EntityType<? extends LivingEntity>, Supplier<DefaultAttributeContainer.Builder>> ATTRIBUTES = new HashMap<>();
 
     public static final EntityType<FarmingFellaEntity> FARMING_GOLEM = register("farming_golem", FarmingFellaEntity::new, FarmingFellaEntity::createGolemAttributes);
     public static final EntityType<LumberjackFellaEntity> LUMBERJACK_GOLEM = register("lumberjack_golem", LumberjackFellaEntity::new, LumberjackFellaEntity::createGolemAttributes);
     public static final EntityType<MiningFellaEntity> MINING_GOLEM = register("mining_golem", MiningFellaEntity::new, MiningFellaEntity::createGolemAttributes);
     public static final EntityType<BeekeeperFellaEntity> BEEKEEPER_GOLEM = register("beekeeper_golem", BeekeeperFellaEntity::new, BeekeeperFellaEntity::createGolemAttributes);
+    public static final EntityType<FishingFellaEntity> FISHING_GOLEM = register("fishing_golem", FishingFellaEntity::new, FishingFellaEntity::createGolemAttributes);
 
     public static void register() {
         ModEntities.ATTRIBUTES.forEach((entityType, builderSupplier) -> FabricDefaultAttributeRegistry.register(entityType, builderSupplier.get()));

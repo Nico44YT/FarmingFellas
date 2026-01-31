@@ -9,10 +9,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.RenderLayer;
 import nico.farmingfellas.client.renderer.ModRenderLayers;
 import nico.farmingfellas.client.renderer.entity.FellaGolemRenderer;
-import nico.farmingfellas.client.renderer.entity.model.BeekeeperGolemModel;
-import nico.farmingfellas.client.renderer.entity.model.FarmingGolemModel;
-import nico.farmingfellas.client.renderer.entity.model.LumberjackGolemModel;
-import nico.farmingfellas.client.renderer.entity.model.MiningGolemModel;
+import nico.farmingfellas.client.renderer.entity.model.*;
 import nico.farmingfellas.client.renderer.item.GolemItemRenderer;
 import nico.farmingfellas.client.renderer.world.ZoneAreaRenderer;
 import nico.farmingfellas.common.block.ModBlocks;
@@ -32,6 +29,7 @@ public class FarmingFellasClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.LUMBERJACK_GOLEM, ctx -> new FellaGolemRenderer<>(ctx, new LumberjackGolemModel<>(ctx.getPart(ModRenderLayers.LUMBERJACK_GOLEM_LAYER))));
         EntityRendererRegistry.register(ModEntities.MINING_GOLEM, ctx -> new FellaGolemRenderer<>(ctx, new MiningGolemModel<>(ctx.getPart(ModRenderLayers.MINING_GOLEM_LAYER))));
         EntityRendererRegistry.register(ModEntities.BEEKEEPER_GOLEM, ctx -> new FellaGolemRenderer<>(ctx, new BeekeeperGolemModel<>(ctx.getPart(ModRenderLayers.BEEKEEPER_GOLEM_LAYER))));
+        EntityRendererRegistry.register(ModEntities.FISHING_GOLEM, ctx -> new FellaGolemRenderer<>(ctx, new FishingGolemModel<>(ctx.getPart(ModRenderLayers.FISHING_GOLEM_LAYER))));
 
         HandledScreens.register(ModHandledScreens.GENERIC_3X2, Generic3x2ContainerScreen::new);
 

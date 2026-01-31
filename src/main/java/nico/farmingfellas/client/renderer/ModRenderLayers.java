@@ -20,6 +20,7 @@ public class ModRenderLayers {
     public static final EntityModelLayer LUMBERJACK_GOLEM_LAYER = registerMain("lumberjack_golem");
     public static final EntityModelLayer MINING_GOLEM_LAYER = registerMain("mining_golem");
     public static final EntityModelLayer BEEKEEPER_GOLEM_LAYER = registerMain("beekeeper_golem");
+    public static final EntityModelLayer FISHING_GOLEM_LAYER = registerMain("fishing_golem");
 
     public static final RenderLayer ZONE_OVERLAY_LAYER = RenderLayer.of(
             FarmingFellasMain.id("zone_overlay").toString(),
@@ -60,6 +61,7 @@ public class ModRenderLayers {
         EntityModelLayerRegistry.registerModelLayer(LUMBERJACK_GOLEM_LAYER, LumberjackGolemModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MINING_GOLEM_LAYER, MiningGolemModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(BEEKEEPER_GOLEM_LAYER, BeekeeperGolemModel::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(FISHING_GOLEM_LAYER, FishingGolemModel::getTexturedModelData);
 
         EntityModelLayerRegistry.registerModelLayer(NO_ZONE_WARNING_LAYER, ZoneMissingModel::getTexturedModelData);
     }

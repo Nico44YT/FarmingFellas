@@ -9,6 +9,7 @@
   "entity.farming_fellas.lumberjack_golem": "Lumberjack Golem",
   "entity.farming_fellas.mining_golem": "Mining Golem",
   "entity.farming_fellas.beekeeper_golem": "Beekeeper Golem",
+  "entity.farming_fellas.fishing_golem": "Fishing Golem",
 
   "item.farming_fellas.golem_generic.has_inventory": "has inventory",
   "item.farming_fellas.golem_generic.has_zone": "has zone",
