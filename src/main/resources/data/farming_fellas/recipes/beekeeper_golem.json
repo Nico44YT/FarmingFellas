@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    "CPI",
+    " P "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:wheat"
+    },
+    "C": {
+      "item": "minecraft:chest"
+    },
+    "P": {
+      "item": "minecraft:packed_mud"
+    },
+    "I": {
+      "item": "minecraft:honeycomb"
+    }
+  },
+  "result": {
+    "item": "farming_fellas:beekeeper_golem",
+    "count": 1
+  }
+}

@@ -19,10 +19,7 @@ public class BeekeeperGolemModel<T extends BeekeeperFellaEntity> extends Abstrac
 
         ModelPartData hat = head.addChild("hat", ModelPartBuilder.create().uv(0, 45).cuboid(-3.0F, -5.0F, -2.0F, 6.0F, 2.0F, 4.0F, new Dilation(0.0F))
                 .uv(-10, 51).cuboid(-5.0F, -3.0F, -5.0F, 10.0F, 0.0F, 10.0F, new Dilation(0.0F))
-                .uv(41, 58).cuboid(-3.5F, -3.0F, -2.5F, 7.1F, 3.0F, 0.0F, new Dilation(0.0F))
-                .uv(41, 58).cuboid(-3.5F, -3.0F, 2.5F, 7.0F, 3.0F, 0.0F, new Dilation(0.0F))
-                .uv(43, 53).cuboid(3.5F, -3.0F, -2.5F, 0.0F, 3.0F, 5.0F, new Dilation(0.0F))
-                .uv(43, 53).cuboid(-3.5F, -3.0F, -2.5F, 0.0F, 3.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+                .uv(27, 53).cuboid(-3.5F, -3.0F, -2.5F, 7.0F, 3.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 
         ModelPartData body = main.addChild("body", ModelPartBuilder.create().uv(0, 0).cuboid(-5.0F, -10.0F, -3.0F, 10.0F, 7.0F, 6.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
 

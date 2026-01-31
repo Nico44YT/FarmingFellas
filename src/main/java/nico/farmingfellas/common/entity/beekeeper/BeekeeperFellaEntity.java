@@ -6,11 +6,13 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.world.World;
 import nico.farmingfellas.common.entity.FellaVariant;
 import nico.farmingfellas.common.entity.base.FellaGolemEntity;
 import nico.farmingfellas.common.entity.base.goal.EmptyInventoryGoal;
+import nico.farmingfellas.common.entity.base.goal.ObtainItemGoal;
 import nico.farmingfellas.common.entity.beekeeper.goal.harvest.BeehiveHarvestGoal;
 import nico.farmingfellas.common.item.ModItems;
 import nico.farmingfellas.screen.custom.Generic3x2ContainerScreenHandler;
@@ -25,6 +27,7 @@ public class BeekeeperFellaEntity extends FellaGolemEntity {
     protected void initGoals() {
         super.initGoals();
 
+        this.goalSelector.add(1, new ObtainItemGoal<>(this, 16, stack -> stack.getItem() == Items.GLASS_BOTTLE));
         this.goalSelector.add(1, new BeehiveHarvestGoal(this));
 
         this.goalSelector.add(2, new EmptyInventoryGoal(this));

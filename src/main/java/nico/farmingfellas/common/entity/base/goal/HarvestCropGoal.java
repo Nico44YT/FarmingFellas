@@ -119,7 +119,7 @@ public abstract class HarvestCropGoal<T extends FellaGolemEntity> extends Goal {
     }
 
     public boolean isNearCrop() {
-        return golem.squaredDistanceTo(targetCrop.getX() + 0.5, targetCrop.getY(), targetCrop.getZ() + 0.5) <= 2.25;
+        return golem.squaredDistanceTo(targetCrop.getX() + 0.5, targetCrop.getY(), targetCrop.getZ() + 0.5) <= 2.35;
     }
 
     private void collectNearbyItems() {
