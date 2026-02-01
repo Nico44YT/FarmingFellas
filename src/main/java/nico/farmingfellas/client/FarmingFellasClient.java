@@ -19,8 +19,6 @@ import nico.farmingfellas.screen.custom.Generic3x2ContainerScreen;
 
 public class FarmingFellasClient implements ClientModInitializer {
 
-    public static GolemItemRenderer golemItemRenderer;
-
     @Override
     public void onInitializeClient() {
         ModRenderLayers.register();
@@ -34,8 +32,6 @@ public class FarmingFellasClient implements ClientModInitializer {
         HandledScreens.register(ModHandledScreens.GENERIC_3X2, Generic3x2ContainerScreen::new);
 
         WorldRenderEvents.LAST.register(ZoneAreaRenderer::renderZone);
-
-        golemItemRenderer = new GolemItemRenderer(MinecraftClient.getInstance(), null, null, null, null);
 
         BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SAPLING_HOLDER, RenderLayer.getCutout());
     }

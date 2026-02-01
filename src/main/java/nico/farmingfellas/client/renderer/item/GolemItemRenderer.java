@@ -19,6 +19,11 @@ import nico.farmingfellas.common.item.custom.GolemItem;
 import org.jetbrains.annotations.Nullable;
 
 public class GolemItemRenderer extends ItemRenderer {
+    private static GolemItemRenderer INSTANCE;
+    public static GolemItemRenderer get() {
+        if(INSTANCE == null) INSTANCE = new GolemItemRenderer(MinecraftClient.getInstance(), null, null, null, null);
+        return INSTANCE;
+    }
 
     private final MinecraftClient client;
 
