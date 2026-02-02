@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.EntityType;
 import nico.farmingfellas.client.renderer.ModRenderLayers;
 import nico.farmingfellas.client.renderer.entity.FellaGolemRenderer;
+import nico.farmingfellas.client.renderer.entity.FishingFellaBobberRenderer;
 import nico.farmingfellas.client.renderer.entity.model.*;
 import nico.farmingfellas.client.renderer.world.ZoneAreaRenderer;
 import nico.farmingfellas.common.block.ModBlocks;
@@ -33,11 +34,13 @@ public class FarmingFellasClient implements ClientModInitializer {
         registerEntityRenderer(ModEntities.BEEKEEPER_GOLEM, ModRenderLayers.BEEKEEPER_GOLEM_LAYER, BeekeeperGolemModel::new);
         registerEntityRenderer(ModEntities.FISHING_GOLEM, ModRenderLayers.FISHING_GOLEM_LAYER, FishingGolemModel::new);
 
+        EntityRendererRegistry.register(ModEntities.FISHING_BOBBER, FishingFellaBobberRenderer::new);
+
         HandledScreens.register(ModHandledScreens.GENERIC_3X2, Generic3x2ContainerScreen::new);
 
         WorldRenderEvents.LAST.register(ZoneAreaRenderer::renderZone);
 
-        BlockRenderLayerMap.INSTANCE.putBlock(ModBlocks.SAPLING_HOLDER, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlocks(RenderLayer.getCutout(), ModBlocks.SAPLING_HOLDER);
     }
 
     private static <T extends FellaGolemEntity> void registerEntityRenderer(EntityType<T> entityType, EntityModelLayer modelLayer, Function<ModelPart, AbstractGolemModel<T>> factory) {

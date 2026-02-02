@@ -2,17 +2,17 @@ package nico.farmingfellas.common.entity;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
-import net.minecraft.entity.EntityDimensions;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnGroup;
+import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.projectile.FishingBobberEntity;
+import net.minecraft.predicate.entity.FishingHookPredicate;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import nico.farmingfellas.FarmingFellasMain;
 import nico.farmingfellas.common.entity.beekeeper.BeekeeperFellaEntity;
 import nico.farmingfellas.common.entity.farming.FarmingFellaEntity;
 import nico.farmingfellas.common.entity.fishing.FishingFellaEntity;
+import nico.farmingfellas.common.entity.fishing.bobber.FishingFellaBobberEntity;
 import nico.farmingfellas.common.entity.lumberjack.LumberjackFellaEntity;
 import nico.farmingfellas.common.entity.mining.MiningFellaEntity;
 
@@ -23,6 +23,16 @@ import java.util.function.Supplier;
 public class ModEntities {
     private static final EntityDimensions DEFAULT_DIMENSIONS = EntityDimensions.fixed(0.75f, 0.95f);
     private static final Map<EntityType<? extends LivingEntity>, Supplier<DefaultAttributeContainer.Builder>> ATTRIBUTES = new HashMap<>();
+
+    public static final EntityType<FishingFellaBobberEntity> FISHING_BOBBER = Registry.register(
+            Registries.ENTITY_TYPE,
+            FarmingFellasMain.id("fishing_bobber"),
+            FabricEntityTypeBuilder
+                    .create(SpawnGroup.CREATURE, FishingFellaBobberEntity::new)
+                    .dimensions(EntityDimensions.fixed(0.2f, 0.2f))
+                    .spawnableFarFromPlayer()
+                    .build()
+    );
 
     public static final EntityType<FarmingFellaEntity> FARMING_GOLEM = register("farming_golem", FarmingFellaEntity::new, FarmingFellaEntity::createGolemAttributes);
     public static final EntityType<LumberjackFellaEntity> LUMBERJACK_GOLEM = register("lumberjack_golem", LumberjackFellaEntity::new, LumberjackFellaEntity::createGolemAttributes);
@@ -45,7 +55,7 @@ public class ModEntities {
     }
     private static <T extends LivingEntity> EntityType<T> register(String name, EntityType<T> type, Supplier<DefaultAttributeContainer.Builder> attributes) {
         var registeredType = Registry.register(Registries.ENTITY_TYPE, FarmingFellasMain.id(name), type);
-        ATTRIBUTES.put(registeredType, attributes);
+        if(attributes != null) ATTRIBUTES.put(registeredType, attributes);
         return registeredType;
     }
 

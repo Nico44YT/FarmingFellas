@@ -462,6 +462,13 @@ public abstract class FellaGolemEntity extends PathAwareEntity implements Invent
     protected void dropEquipment(DamageSource source, int lootingMultiplier, boolean allowDrops) {
 
     }
+
+    @Override
+    public void setStackInHand(Hand hand, ItemStack stack) {
+        if(stack.getItem().equals(getStackInHand(hand).getItem())) return;
+        super.setStackInHand(hand, stack);
+    }
+
     //endregion
 
     //region // * Rendering * //

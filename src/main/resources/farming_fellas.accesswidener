@@ -18,3 +18,5 @@ accessible method net/minecraft/block/entity/BeehiveBlockEntity tryReleaseBee (L
 accessible field net/minecraft/util/math/Direction HORIZONTAL [Lnet/minecraft/util/math/Direction; # WHY?!
 accessible field net/minecraft/util/math/Direction VALUES [Lnet/minecraft/util/math/Direction; # WHY?!
 accessible field net/minecraft/util/math/Direction ALL [Lnet/minecraft/util/math/Direction; # WHY?!
+
+accessible method net/minecraft/entity/projectile/FishingBobberEntity setPlayerFishHook (Lnet/minecraft/entity/projectile/FishingBobberEntity;)V

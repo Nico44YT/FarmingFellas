@@ -7,14 +7,15 @@
     "BeeEntityMixin",
     "CropBlockMixin",
     "FarmlandBlockMixin",
+    "LargeTreeSaplingGeneratorMixin",
     "PitcherCropBlockMixin",
     "PlantBlockMixin",
     "SaplingGeneratorMixin",
-    "LargeTreeSaplingGeneratorMixin",
     "SweetBerryBushBlockMixin"
   ],
   "client": [
     "client.DrawContextMixin",
+    "client.FishingBobberEntityRendererAccessor",
     "client.ItemRendererMixin"
   ],
   "injectors": {
