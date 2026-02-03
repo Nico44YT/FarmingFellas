@@ -26,10 +26,12 @@ import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -39,6 +41,7 @@ import nico.farmingfellas.common.entity.fishing.FishingFellaEntity;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public class FishingFellaBobberEntity extends ProjectileEntity {
     private final Random velocityRandom;
@@ -73,25 +76,53 @@ public class FishingFellaBobberEntity extends ProjectileEntity {
         this(entityType, world, 0, 0);
     }
 
-    public static FishingFellaBobberEntity create(Entity thrower, World world, int luckOfTheSeaLevel, int lureLevel) {
-        FishingFellaBobberEntity bobber = new FishingFellaBobberEntity(ModEntities.FISHING_BOBBER, world, luckOfTheSeaLevel, lureLevel);
+    public static FishingFellaBobberEntity create(Entity thrower, World world, int luckLevel, int lureLevel) {
+        FishingFellaBobberEntity bobber =
+                new FishingFellaBobberEntity(ModEntities.FISHING_BOBBER, world, luckLevel, lureLevel);
+
         bobber.setOwner(thrower);
-        float f = thrower.getPitch();
-        float g = thrower.getYaw();
-        float h = MathHelper.cos(-g * ((float) Math.PI / 180F) - (float) Math.PI);
-        float i = MathHelper.sin(-g * ((float) Math.PI / 180F) - (float) Math.PI);
-        float j = -MathHelper.cos(-f * ((float) Math.PI / 180F));
-        float k = MathHelper.sin(-f * ((float) Math.PI / 180F));
-        double d = thrower.getX() - (double) i * 0.3;
-        double e = thrower.getEyeY();
-        double l = thrower.getZ() - (double) h * 0.3;
-        bobber.refreshPositionAndAngles(d, e, l, g, f);
-        Vec3d vec3d = new Vec3d((double) (-i), (double) MathHelper.clamp(-(k / j), -5.0F, 5.0F), (double) (-h));
-        double m = vec3d.length();
-        vec3d = vec3d.multiply(0.6 / m + bobber.random.nextTriangular((double) 0.5F, 0.0103365), 0.6 / m + bobber.random.nextTriangular((double) 0.5F, 0.0103365), 0.6 / m + bobber.random.nextTriangular((double) 0.5F, 0.0103365));
-        bobber.setVelocity(vec3d);
-        bobber.setYaw((float) (MathHelper.atan2(vec3d.x, vec3d.z) * (double) (180F / (float) Math.PI)));
-        bobber.setPitch((float) (MathHelper.atan2(vec3d.y, vec3d.horizontalLength()) * (double) (180F / (float) Math.PI)));
+
+        // Angles (degrees → radians)
+        float pitch = thrower.getPitch();
+        float yaw = thrower.getYaw();
+        float yawRad = -yaw * MathHelper.RADIANS_PER_DEGREE - MathHelper.PI;
+        float pitchRad = -pitch * MathHelper.RADIANS_PER_DEGREE;
+
+        // Direction components
+        float dirX = MathHelper.sin(yawRad);
+        float dirZ = MathHelper.cos(yawRad);
+        float dirYHorizontal = MathHelper.cos(pitchRad);
+        float dirYVertical = MathHelper.sin(pitchRad);
+
+        // Initial position
+        double x = thrower.getX() - dirX * 0.15;
+        double y = thrower.getEyeY();
+        double z = thrower.getZ() - dirZ * 0.15;
+
+        bobber.refreshPositionAndAngles(x, y, z, yaw, pitch);
+
+        // Initial velocity
+        Vec3d velocity = new Vec3d(
+                -dirX,
+                MathHelper.clamp(-(dirYVertical / dirYHorizontal), -3.0F, 3.0F),
+                -dirZ
+        );
+
+        double length = velocity.length();
+        double speed = 0.8 / length;
+
+        velocity = velocity.multiply(
+                speed + bobber.random.nextTriangular(0.25, 0.00103365),
+                speed + bobber.random.nextTriangular(0.25, 0.00103365),
+                speed + bobber.random.nextTriangular(0.25, 0.00103365)
+        );
+
+        bobber.setVelocity(velocity);
+
+        // Rotation from velocity
+        bobber.setYaw((float) MathHelper.atan2(velocity.x, velocity.z) * MathHelper.DEGREES_PER_RADIAN);
+        bobber.setPitch((float) MathHelper.atan2(velocity.y, velocity.horizontalLength()) * MathHelper.DEGREES_PER_RADIAN);
+
         bobber.prevYaw = bobber.getYaw();
         bobber.prevPitch = bobber.getPitch();
 
@@ -220,8 +251,12 @@ public class FishingFellaBobberEntity extends ProjectileEntity {
             }
 
             double e = 0.92;
-            this.setVelocity(this.getVelocity().multiply(0.92));
+            this.setVelocity(this.getVelocity().multiply(e));
             this.refreshPosition();
+
+            if(getPos().squaredDistanceTo(getGolemOwner().getPos()) <= 0.15) {
+                this.kill();
+            }
         }
     }
 
@@ -298,7 +333,7 @@ public class FishingFellaBobberEntity extends ProjectileEntity {
                     g = MathHelper.sin(f);
                     h = MathHelper.cos(f);
                     d = this.getX() + (double) (g * (float) this.fishTravelCountdown * 0.1F);
-                    e = (double) ((float) MathHelper.floor(this.getY()) + 1.0F);
+                    e = ((float) MathHelper.floor(this.getY()) + 1.0F);
                     j = this.getZ() + (double) (h * (float) this.fishTravelCountdown * 0.1F);
                     blockState = serverWorld.getBlockState(BlockPos.ofFloored(d, e - 1.0, j));
                     if (blockState.isOf(Blocks.WATER)) {
@@ -318,6 +353,8 @@ public class FishingFellaBobberEntity extends ProjectileEntity {
                     serverWorld.spawnParticles(ParticleTypes.FISHING, this.getX(), m, this.getZ(), (int) (1.0F + this.getWidth() * 20.0F), (double) this.getWidth(), 0.0, (double) this.getWidth(), 0.20000000298023224);
                     this.hookCountdown = MathHelper.nextInt(this.random, 20, 40);
                     this.getDataTracker().set(CAUGHT_FISH, true);
+
+                    use(getGolemOwner().getStackInHand(Hand.MAIN_HAND));
                 }
             } else if (this.waitCountdown > 0) {
                 this.waitCountdown -= i;
@@ -432,12 +469,14 @@ public class FishingFellaBobberEntity extends ProjectileEntity {
                     double e = fishingGolem.getY() - this.getY();
                     double f = fishingGolem.getZ() - this.getZ();
                     double g = 0.1;
-                    itemEntity.setVelocity(d * g, e * g + Math.sqrt(Math.sqrt(d * d + e * e + f * f)) * 0.08, f * g);
-                    this.getWorld().spawnEntity(itemEntity);
+                    itemEntity.setVelocity(d * g, (e) * g + Math.sqrt(Math.sqrt(d * d + e * e + f * f)) * 0.08, f * g);
+                    //this.getWorld().spawnEntity(itemEntity);
                     fishingGolem.getWorld().spawnEntity(new ExperienceOrbEntity(fishingGolem.getWorld(), fishingGolem.getX(), fishingGolem.getY() + 0.5, fishingGolem.getZ() + 0.5, this.random.nextInt(6) + 1));
                     if (itemStack.isIn(ItemTags.FISHES)) {
                         //fishingGolem.increaseStat(Stats.FISH_CAUGHT, 1);
                     }
+
+                    fishingGolem.insertStack(itemStack);
                 }
 
                 i = 1;

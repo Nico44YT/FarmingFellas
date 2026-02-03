@@ -42,10 +42,9 @@ public class FishingFellaEntity extends FellaGolemEntity {
 
         setStackInHand(Hand.MAIN_HAND, Items.FISHING_ROD.getDefaultStack());
 
-        if(!spawned) {
-            var $ = FishingFellaBobberEntity.create(this, getWorld(), 0, 0);
-            getWorld().spawnEntity($);
-            spawned = !spawned;
+        if(fishHook == null) {
+            fishHook = FishingFellaBobberEntity.create(this, getWorld(), 0, 0);
+            getWorld().spawnEntity(fishHook);
         }
     }
 
